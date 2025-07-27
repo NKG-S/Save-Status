@@ -22,7 +22,7 @@ object Constants {
 
     // Default save folder for the app
     // This will be created within the app-specific directory or a user-selected directory
-    val DEFAULT_SAVE_FOLDER_NAME = "WhatsAppStatusSaver"
+    const val DEFAULT_SAVE_FOLDER_NAME = "SavedStatuses"
     val DEFAULT_AUTO_SAVE_SUBFOLDER_NAME = "AutoSaved"
 
     // Preferences keys
@@ -53,6 +53,18 @@ object Constants {
     // Default WhatsApp status paths
     val WHATSAPP_STATUS_PATH = "${Environment.getExternalStorageDirectory()}/Android/media/com.whatsapp/WhatsApp/Media/.Statuses"
     val WHATSAPP_BUSINESS_STATUS_PATH = "${Environment.getExternalStorageDirectory()}/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses"
+    
+
+    // Default folder name for saving statuses within the app's external files directory
+
+    // Preference keys
+    const val KEY_AUTO_SAVE_STATUSES = "auto_save_statuses"
+    const val KEY_SAVE_OLDER_STATUS = "save_older_status" // New key for saving older statuses
+
+
+
+
+
 
 
 

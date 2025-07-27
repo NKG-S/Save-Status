@@ -1,4 +1,4 @@
-package com.kezor.localsave.savestatus // Ensure this package is consistent
+package com.kezor.localsave.savestatus // Standardized package name
 
 import android.os.Bundle
 import android.util.Log
@@ -15,7 +15,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.IOException
 import com.kezor.localsave.savestatus.StatusFragmentDirections // Correct import for Safe Args directions
 
 class StatusFragment : Fragment() {

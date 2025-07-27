@@ -1,4 +1,4 @@
-package com.kezor.localsave.savestatus // Ensure this package is consistent
+package com.kezor.localsave.savestatus // Standardized package name
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
