@@ -19,7 +19,6 @@ import androidx.preference.PreferenceManager
 import com.bumptech.glide.Glide
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem as ExoMediaItem
-import com.google.android.exoplayer2.Player
 import com.kezor.localsave.savestatus.databinding.FragmentImageViewerBinding
 import com.kezor.localsave.savestatus.databinding.FragmentVideoPlayerBinding
 import kotlinx.coroutines.Dispatchers

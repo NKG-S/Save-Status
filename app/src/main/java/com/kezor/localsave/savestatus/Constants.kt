@@ -5,21 +5,6 @@ import java.io.File
 
 object Constants {
 
-    // WhatsApp status directories
-    // Note: Accessing these directly requires MANAGE_EXTERNAL_STORAGE on Android 11+
-    // and READ_EXTERNAL_STORAGE on Android 10 and below.
-    // The actual path might vary slightly based on device/WhatsApp version.
-    // These paths are common but might need user selection for broader compatibility.
-//    val WHATSAPP_STATUS_PATH: String = Environment.getExternalStorageDirectory().absolutePath +
-//            File.separator + "Android" + File.separator + "media" + File.separator +
-//            "com.whatsapp" + File.separator + "WhatsApp" + File.separator + "Media" +
-//            File.separator + ".Statuses"
-//
-//    val WHATSAPP_BUSINESS_STATUS_PATH: String = Environment.getExternalStorageDirectory().absolutePath +
-//            File.separator + "Android" + File.separator + "media" + File.separator +
-//            "com.whatsapp.w4b" + File.separator + "WhatsApp Business" + File.separator + "Media" +
-//            File.separator + ".Statuses"
-
     // Default save folder for the app
     // This will be created within the app-specific directory or a user-selected directory
     const val DEFAULT_SAVE_FOLDER_NAME = "SavedStatuses"
@@ -28,7 +13,7 @@ object Constants {
     // Preferences keys
     const val PREFS_NAME = "app_preferences"
     const val KEY_THEME_MODE = "theme_mode" // 0: System, 1: Light, 2: Dark
-    const val KEY_SAVE_FOLDER_PATH = "save_folder_path"
+    const val KEY_SAVE_FOLDER_PATH = "/Android/media/com.kezor/SaveStatus"
     const val KEY_AUTO_SAVE_TOGGLE = "auto_save_toggle"
     const val KEY_SAVE_OLDER_TOGGLE = "save_older_toggle"
 
@@ -42,7 +27,6 @@ object Constants {
     const val MEDIA_TYPE_VIDEO = "video"
 
 
-
     // Theme values
     const val KEY_APP_THEME = "app_theme"
     const val THEME_LIGHT = "light"
@@ -53,7 +37,7 @@ object Constants {
     // Default WhatsApp status paths
     val WHATSAPP_STATUS_PATH = "${Environment.getExternalStorageDirectory()}/Android/media/com.whatsapp/WhatsApp/Media/.Statuses"
     val WHATSAPP_BUSINESS_STATUS_PATH = "${Environment.getExternalStorageDirectory()}/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses"
-    
+
 
     // Default folder name for saving statuses within the app's external files directory
 
