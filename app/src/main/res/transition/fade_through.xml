@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
+    android:transitionOrdering="together">
+    <fade android:duration="250" android:fadingMode="fade_out" />
+    <fade android:duration="250" android:startDelay="100" android:fadingMode="fade_in" />
+</transitionSet>

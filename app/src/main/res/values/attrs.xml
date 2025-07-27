@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomSettingItem">
+        <attr name="itemTitle" format="string" />
+        <attr name="itemSubtitle" format="string" />
+        <attr name="itemIcon" format="reference" />
+        <attr name="itemContentDescription" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="CustomSectionHeader">
+        <attr name="titleText" format="string" />
+    </declare-styleable>
+
+</resources>

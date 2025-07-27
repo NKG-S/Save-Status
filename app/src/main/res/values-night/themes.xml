@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.SaveStatus" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Customize your dark theme here. -->
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/md_theme_inversePrimary</item>
+        <item name="colorOnPrimary">@color/md_theme_primary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_onPrimaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_primaryContainer</item>
+
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/md_theme_inverseOnSurface</item>
+        <item name="colorOnSecondary">@color/md_theme_secondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_onSecondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_secondaryContainer</item>
+
+        <!-- Tertiary brand color -->
+        <item name="colorTertiary">@color/md_theme_inversePrimary</item>
+        <item name="colorOnTertiary">@color/md_theme_tertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_onTertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_tertiaryContainer</item>
+
+        <!-- Error colors -->
+        <item name="colorError">@color/md_theme_error</item>
+        <item name="colorOnError">@color/md_theme_onError</item>
+        <item name="colorErrorContainer">@color/md_theme_onErrorContainer</item>
+        <item name="colorOnErrorContainer">@color/md_theme_errorContainer</item>
+
+        <!-- Background and surface colors -->
+        <item name="android:colorBackground">@color/md_theme_inverseSurface</item>
+        <item name="colorOnBackground">@color/md_theme_inverseOnSurface</item>
+        <item name="colorSurface">@color/md_theme_inverseSurface</item>
+        <item name="colorOnSurface">@color/md_theme_inverseOnSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_surfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_outline</item>
+        <item name="colorOutlineVariant">@color/md_theme_outlineVariant</item>
+<!--        <item name="colorScrim">@color/md_theme_scrim</item>-->
+        <item name="colorSurfaceInverse">@color/md_theme_surface</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_onSurface</item>
+        <item name="colorPrimaryInverse">@color/md_theme_primary</item>
+
+        <!-- Status bar color -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorSurface</item>
+        <!-- Navigation bar color -->
+        <item name="android:navigationBarColor" tools:targetApi="l">?attr/colorSurface</item>
+
+        <!-- Essential text highlight and link colors for TextViews -->
+        <item name="android:textColorHighlight">?attr/colorPrimary</item>
+        <item name="android:textColorLink">?attr/colorPrimary</item>
+
+        <!-- Typography -->
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Material3.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.Material3.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Material3.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Material3.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Material3.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Material3.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Material3.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Material3.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Material3.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Material3.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Material3.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Material3.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Material3.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Material3.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.Material3.LabelSmall</item>
+
+        <!-- CardView style for consistent corners and elevation -->
+        <item name="materialCardViewStyle">@style/Widget.MaterialComponents.CardView</item>
+
+        <!-- Bottom Navigation View style -->
+<!--        <item name="bottomNavigationViewStyle">@style/Widget.App.BottomNavigationView</item>-->
+
+        <!-- Tab Layout style -->
+        <item name="materialThemeOverlay">@style/Widget.Design.TabLayout</item>
+
+        <!-- Optional: Use dynamic colors if available (Android 12+) -->
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">@drawable/ic_launcher_foreground</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">?attr/colorSurface</item>
+        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="s">?attr/colorSurface</item>
+
+        <!-- Activity transitions for smooth screen changes -->
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowEnterTransition">@transition/fade_through</item>
+        <item name="android:windowExitTransition">@transition/fade_through</item>
+    </style>
+</resources>

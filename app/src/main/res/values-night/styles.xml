@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Custom CardView style for consistent corners and elevation -->
+    <style name="Widget.App.CardView" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- Custom BottomNavigationView style -->
+    <style name="Widget.App.BottomNavigationView" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemIconTint">@color/bottom_nav_item_color</item>
+        <item name="itemTextColor">@color/bottom_nav_item_color</item>
+        <item name="android:background">?attr/colorSurface</item>
+    </style>
+
+    <!-- Theme Overlay for TabLayout to ensure proper attribute resolution -->
+    <style name="ThemeOverlay.App.MaterialComponents.TabLayout" parent="ThemeOverlay.Material3.Toolbar.Surface">
+        <!-- Removed android:textColorHighlight as it's now in the main theme -->
+<!--        <item name="textAppearanceTabSelected">@style/TextAppearance.App.TabLayout.Selected</item>-->
+<!--        <item name="textAppearanceTabUnselected">@style/TextAppearance.App.TabLayout.Unselected</item>-->
+    </style>
+
+    <!-- Text Appearance for selected tab -->
+    <style name="TextAppearance.App.TabLayout.Selected" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Text Appearance for unselected tab -->
+    <style name="TextAppearance.App.TabLayout.Unselected" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- Custom Dialog Theme -->
+    <style name="Theme.SaveStatus.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.App.Title.Text</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.App.Body.Text</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Material3.Button.TextButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Material3.Button.TextButton</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.Title.Text" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textAppearance">?attr/textAppearanceHeadlineSmall</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.Body.Text" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
+    </style>
+
+</resources>

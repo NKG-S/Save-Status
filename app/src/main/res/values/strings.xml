@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">Save Status</string>
+
+    <!-- Main Titles -->
+    <string name="title_status">Status</string>
+    <string name="title_saved">Saved</string>
+    <string name="title_settings">Settings</string>
+
+    <!-- Tabs -->
+    <string name="status_tab_images">Images</string>
+    <string name="status_tab_videos">Videos</string>
+
+    <!-- Permission Dialog -->
+    <string name="permission_required_title">Permission Required</string>
+    <string name="permission_storage_message">To save WhatsApp statuses, the app needs access to your device\'s storage. Please grant the necessary permissions.</string>
+    <string name="permission_required_message">This app needs access to your device\'s storage to save WhatsApp statuses. Please grant the necessary permissions.</string>
+    <string name="permission_grant_button">Grant Permission</string>
+    <string name="permission_settings_button">Go to Settings</string>
+    <string name="permission_go_to_settings_button">Go to Settings</string>
+    <string name="permission_denied_exit_message">Storage permission is essential for this app to function. Please grant it to continue.</string>
+    <string name="dialog_permission_denied_title">Permission Denied</string>
+    <string name="dialog_permission_denied_message">Storage permission is crucial for this app. Please grant it from settings to continue.</string>
+    <string name="dialog_go_to_settings">Go to Settings</string>
+
+    <!-- Status UI -->
+    <string name="status_pull_to_refresh">Pull to refresh</string>
+    <string name="status_save_button">Save</string>
+    <string name="status_no_media_found">No WhatsApp statuses found. Make sure you\'ve viewed some statuses in WhatsApp.</string>
+    <string name="status_saved_successfully">Status saved successfully!</string>
+    <string name="status_save_failed">Failed to save status.</string>
+    <string name="status_error_loading_media">Error loading media: %1$s</string>
+
+    <!-- Saved UI -->
+    <string name="saved_no_media_found">No saved statuses yet. Save some from the Status screen!</string>
+    <string name="saved_delete_button">Delete</string>
+    <string name="saved_delete_confirmation_title">Confirm Deletion</string>
+    <string name="saved_delete_confirmation_message">Are you sure you want to delete the selected items?</string>
+    <string name="saved_delete_confirm">Delete</string>
+    <string name="saved_delete_cancel">Cancel</string>
+    <string name="saved_selection_mode_title">Selected (%1$d)</string>
+    <string name="saved_items_deleted">Deleted %1$d items.</string>
+    <string name="saved_delete_failed">Failed to delete items.</string>
+    <string name="saved_share_button">Share</string>
+
+    <!-- Settings UI -->
+    <string name="settings_section_theme">Theme</string>
+    <string name="settings_theme_selection">Theme Selection</string>
+    <string name="settings_theme_selection_title">Theme Selection</string>
+    <string name="settings_light_mode">Light Mode</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_system_default">System Default</string>
+
+    <string name="settings_section_storage">Storage</string>
+    <string name="settings_storage_settings_title">Storage Settings</string>
+    <string name="settings_saved_status_location">Saved Status Storage Location</string>
+    <string name="settings_default_folder_path">Current Save Path: %1$s</string>
+    <string name="settings_change_save_folder">Change Save Folder</string>
+    <string name="settings_save_all_statuses_toggle_title">Auto Save</string>
+    <string name="settings_save_all_statuses_toggle_summary">Automatically save all new statuses</string>
+    <string name="settings_auto_save_toggle">Auto Save All Statuses</string>
+    <string name="settings_save_older_status_toggle_title">Save Older Status</string>
+    <string name="settings_save_older_status_toggle_summary">Save all older statuses up to 5 days</string>
+    <string name="settings_save_older_toggle">Save Older Statuses</string>
+    <string name="settings_go_to_saved_all_statuses">Go to Automatically Saved</string>
+    <string name="settings_go_to_auto_saved">Go to Automatically Saved</string>
+    <string name="settings_clear_all">Clear All Automatically Saved</string>
+    <string name="settings_clear_all_auto_saved">Clear All Automatically Saved</string>
+    <string name="settings_clear_all_dialog_title">Clear All Auto-Saved?</string>
+    <string name="settings_clear_all_dialog_message">Are you sure you want to delete all automatically saved statuses? This action cannot be undone.</string>
+
+    <string name="settings_section_app_info">App Info</string>
+    <string name="settings_app_info_title">App Information</string>
+    <string name="settings_privacy_policy">Privacy Policy</string>
+    <string name="settings_rate_us">Rate Us</string>
+    <string name="settings_share_app">Share App</string>
+    <string name="settings_developer_info">Developer Info</string>
+    <string name="settings_app_version">App Version</string>
+    <string name="settings_app_version_placeholder">Version: %1$s</string>
+
+    <!-- Dialogs -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_error_title">Error</string>
+    <string name="dialog_info_title">Info</string>
+
+    <!-- Accessibility Content Descriptions -->
+    <string name="cd_back_button">Back button</string>
+    <string name="cd_save_button">Save button</string>
+    <string name="cd_share_button">Share button</string>
+    <string name="cd_delete_button">Delete button</string>
+    <string name="cd_permission_icon">Permission Required Icon</string>
+    <string name="cd_play_pause_button">Play/Pause button</string>
+    <string name="cd_previous_button">Previous button</string>
+    <string name="cd_next_button">Next button</string>
+    <string name="cd_media_thumbnail">Media thumbnail</string>
+    <string name="cd_theme_switch">Toggle switch for theme</string>
+    <string name="cd_auto_save_switch">Toggle switch for auto save</string>
+    <string name="cd_save_older_switch">Toggle switch for saving older statuses</string>
+
+    <!-- Empty States -->
+    <string name="empty_status_message">No recent statuses found. Make sure you\'ve viewed some statuses in WhatsApp.</string>
+    <string name="empty_saved_message">No saved statuses yet. Save some from the Statuses tab!</string>
+
+    <!-- Misc -->
+    <string name="coming_soon">Feature coming soon!</string>
+
+    <!-- Locations -->
+    <string name="settings_saved_status_storage_location">/Videos/Status</string>
+
+    <string name="radio_system_default">System default</string>
+    <string name="radio_light_mode">Light mode</string>
+    <string name="radio_dark_mode">Dark mode</string>
+
+
+</resources>

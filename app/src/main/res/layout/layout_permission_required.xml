@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:padding="24dp">
+
+    <ImageView
+        android:id="@+id/icon_permission"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:src="@drawable/ic_folder_open_outlined"
+        app:tint="?attr/colorPrimary"
+        android:contentDescription="@string/cd_permission_icon"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintBottom_toTopOf="@+id/text_view_permission_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.4" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/text_view_permission_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/permission_required_title"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:textColor="?attr/colorOnSurface"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@+id/text_view_permission_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/icon_permission" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/text_view_permission_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/permission_storage_message"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@+id/btn_grant_permission"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_permission_title" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_grant_permission"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/permission_grant_button"
+        app:layout_constraintBottom_toTopOf="@+id/btn_go_to_settings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_permission_message" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_go_to_settings"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/permission_settings_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_grant_permission" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

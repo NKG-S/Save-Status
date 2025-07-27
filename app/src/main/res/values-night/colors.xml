@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="md_theme_primary">#53DBCA</color>
+    <color name="md_theme_onPrimary">#003730</color>
+    <color name="md_theme_primaryContainer">#005047</color>
+    <color name="md_theme_onPrimaryContainer">#73F8E2</color>
+    <color name="md_theme_secondary">#AFCFC8</color>
+    <color name="md_theme_onSecondary">#1C3532</color>
+    <color name="md_theme_secondaryContainer">#334C48</color>
+    <color name="md_theme_onSecondaryContainer">#CCE8E2</color>
+    <color name="md_theme_tertiary">#B2CCEA</color>
+    <color name="md_theme_onTertiary">#153349</color>
+    <color name="md_theme_tertiaryContainer">#2F4A61</color>
+    <color name="md_theme_onTertiaryContainer">#CDE6FF</color>
+    <color name="md_theme_error">#FFB4AB</color>
+    <color name="md_theme_onError">#690005</color>
+    <color name="md_theme_errorContainer">#93000A</color>
+    <color name="md_theme_onErrorContainer">#FFDAD6</color>
+    <color name="md_theme_background">#191C1B</color>
+    <color name="md_theme_onBackground">#E1E3E1</color>
+    <color name="md_theme_surface">#191C1B</color>
+    <color name="md_theme_onSurface">#E1E3E1</color>
+    <color name="md_theme_surfaceVariant">#3F4947</color>
+    <color name="md_theme_onSurfaceVariant">#BFC9C6</color>
+    <color name="md_theme_outline">#899391</color>
+    <color name="md_theme_shadow">#000000</color>
+    <color name="md_theme_inverseSurface">#E1E3E1</color>
+    <color name="md_theme_inverseOnSurface">#2E3130</color>
+    <color name="md_theme_inversePrimary">#006B5F</color>
+    <color name="md_theme_surfaceTint">#53DBCA</color>
+    <color name="md_theme_outlineVariant">#3F4947</color>
+    <color name="md_theme_scrim">#000000</color>
+    <color name="md_theme_surfaceContainerHighest">#2A2A2A</color> <color name="dark_background">#121212</color>
+    <color name="dark_onBackground">#FFFFFF</color>
+    <color name="dark_card_surface">#1F1F1F</color> <color name="bottom_nav_selected">@color/md_theme_primary</color>
+    <color name="bottom_nav_unselected">@color/md_theme_onSurfaceVariant</color>
+</resources>
