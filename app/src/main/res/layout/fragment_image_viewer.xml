@@ -3,40 +3,51 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:fitsSystemWindows="false"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
     tools:context=".MediaViewerFragment">
 
-    <!-- App Bar with back -->
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/top_app_bar"
-        android:layout_width="0dp"
-        android:layout_height="?attr/actionBarSize"
+    <!-- Top App Bar for back button and title -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:navigationIcon="@drawable/ic_arrow_back_outlined"
-        app:navigationContentDescription="@string/cd_back_button"
-        app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white"
-        android:background="@android:color/transparent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Image fullscreen -->
-    <ImageView
-        android:id="@+id/image_full_screen"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:scaleType="fitCenter"
-        android:contentDescription="@string/cd_media_thumbnail"
-        app:layout_constraintTop_toBottomOf="@id/top_app_bar"
-        app:layout_constraintBottom_toTopOf="@id/action_bar_container"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:src="@tools:sample/backgrounds/scenic" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/top_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back_outlined"
+            app:navigationContentDescription="@string/cd_back_button"
+            app:navigationIconTint="@android:color/white"
+            app:titleTextColor="@android:color/white"
+            app:titleTextAppearance="?attr/textAppearanceTitleLarge"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Bottom Action Card -->
+
+    <ImageView
+        android:id="@+id/image_full_screen"
+        android:layout_width="411dp"
+        android:layout_height="584dp"
+        android:contentDescription="@string/cd_media_thumbnail"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/app_bar_layout"
+        app:layout_constraintVertical_bias="0.496"
+        tools:src="@tools:sample/backgrounds/scenic" />
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/action_bar_container"
         android:layout_width="match_parent"
@@ -51,12 +62,11 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/md_theme_inverseSurface"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:background="@android:color/transparent"
             android:gravity="center"
             android:orientation="horizontal"
-            android:layout_gravity="bottom"
-
             android:padding="16dp">
 
             <com.google.android.material.button.MaterialButton
@@ -71,19 +81,18 @@
                 app:icon="@drawable/ic_save_outlined"
                 app:iconTint="@android:color/white" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_share"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="12dp"
-                            android:text="@string/saved_share_button"
-                            android:contentDescription="@string/cd_share_button"
-                            android:textColor="@android:color/white"
-                            app:icon="@drawable/ic_share_outlined"
-                            app:iconTint="@android:color/white" />
-
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_share"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_share_button"
+                android:text="@string/saved_share_button"
+                android:textColor="@android:color/white"
+                app:icon="@drawable/ic_share_outlined"
+                app:iconTint="@android:color/white" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

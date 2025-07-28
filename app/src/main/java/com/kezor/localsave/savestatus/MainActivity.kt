@@ -15,10 +15,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButton
 import com.kezor.localsave.savestatus.databinding.ActivityMainBinding
+import androidx.navigation.fragment.NavHostFragment // Import NavHostFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -75,6 +78,9 @@ class MainActivity : AppCompatActivity() {
             showPermissionRequiredUI()
         } else {
             hidePermissionRequiredUI()
+            // Only attempt to setup navigation if the NavHostFragment is visible
+            // and navController hasn't been initialized yet.
+            // This prevents re-initializing if already set up and visible.
             if (binding.navHostFragmentActivityMain.visibility == View.VISIBLE && !::navController.isInitialized) {
                 setupNavigation()
             }
@@ -123,10 +129,10 @@ class MainActivity : AppCompatActivity() {
         binding.navView.visibility = View.GONE
         binding.permissionOverlay.visibility = View.VISIBLE
 
-        binding.permissionOverlay.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_grant_permission).setOnClickListener {
+        binding.permissionOverlay.findViewById<MaterialButton>(com.kezor.localsave.savestatus.R.id.btn_grant_permission).setOnClickListener {
             requestStoragePermission()
         }
-        binding.permissionOverlay.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_go_to_settings).setOnClickListener {
+        binding.permissionOverlay.findViewById<MaterialButton>(com.kezor.localsave.savestatus.R.id.btn_go_to_settings).setOnClickListener {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             val uri = Uri.fromParts("package", packageName, null)
             intent.data = uri
@@ -141,18 +147,33 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupNavigation() {
+        // Ensure NavController is initialized only once
         if (!::navController.isInitialized) {
+            // Get the NavHostFragment and then its NavController
             val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
             navController = navHostFragment.navController
 
             val navView: BottomNavigationView = binding.navView
 
-            val appBarConfiguration = androidx.navigation.ui.AppBarConfiguration(
+            val appBarConfiguration = AppBarConfiguration(
                 setOf(
-                    R.id.navigation_status, R.id.navigation_saved, R.id.navigation_settings
+                    com.kezor.localsave.savestatus.R.id.navigation_status,
+                    com.kezor.localsave.savestatus.R.id.navigation_saved,
+                    com.kezor.localsave.savestatus.R.id.navigation_settings
                 )
             )
             navView.setupWithNavController(navController)
+
+            navController.addOnDestinationChangedListener { _, destination, _ ->
+                when (destination.id) {
+                    com.kezor.localsave.savestatus.R.id.mediaViewerFragment -> {
+                        binding.navView.visibility = View.GONE
+                    }
+                    else -> {
+                        binding.navView.visibility = View.VISIBLE
+                    }
+                }
+            }
         }
     }
 }

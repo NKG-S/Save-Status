@@ -30,8 +30,9 @@
     <color name="md_theme_surfaceTint">#53DBCA</color>
     <color name="md_theme_outlineVariant">#3F4947</color>
     <color name="md_theme_scrim">#000000</color>
-    <color name="md_theme_surfaceContainerHighest">#2A2A2A</color> <color name="dark_background">#121212</color>
-    <color name="dark_onBackground">#FFFFFF</color>
-    <color name="dark_card_surface">#1F1F1F</color> <color name="bottom_nav_selected">@color/md_theme_primary</color>
+    <color name="md_theme_surfaceContainerHighest">#2A2A2A</color>
+    <color name="bottom_nav_selected">@color/md_theme_primary</color>
     <color name="bottom_nav_unselected">@color/md_theme_onSurfaceVariant</color>
+    <color name="pixel_accent">#FF3366</color>
+    <color name="pixel_dark_surface">#1A1A1A</color>
 </resources>

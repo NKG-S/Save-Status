@@ -36,5 +36,7 @@
     <color name="light_onBackground">#1C1B1F</color>
     <color name="light_card_surface">#F5F5F5</color> <color name="bottom_nav_selected">@color/md_theme_primary</color>
     <color name="bottom_nav_unselected">@color/md_theme_onSurfaceVariant</color>
+    <color name="pixel_accent">#C3C3C3</color>
+    <color name="pixel_dark_surface">#434343</color>
 
 </resources>
