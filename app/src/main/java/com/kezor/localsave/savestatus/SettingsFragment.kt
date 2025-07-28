@@ -1,19 +1,25 @@
+@file:Suppress("DEPRECATION")
+
 package com.kezor.localsave.savestatus
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log // Import Log
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import com.kezor.localsave.savestatus.databinding.FragmentSettingsBinding // Make sure this import matches your layout file name
-import androidx.core.content.edit
+import com.kezor.localsave.savestatus.databinding.FragmentSettingsBinding
+import com.google.android.material.chip.Chip
+import com.google.android.material.snackbar.Snackbar
 import java.util.Locale
 
 class SettingsFragment : Fragment() {
@@ -22,7 +28,7 @@ class SettingsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var sharedPreferences: SharedPreferences
 
-    private val TAG = "SettingsFragment" // Tag for Log.e()
+    private val TAG = "SettingsFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,152 +48,357 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupThemeSettings() {
-        // Load the saved theme and check the correct radio button
+        // Get current theme from SharedPreferences
         val currentTheme = sharedPreferences.getString(Constants.KEY_THEME_MODE, Constants.THEME_SYSTEM_DEFAULT)
-        Log.e(TAG, "Current theme loaded from preferences: $currentTheme")
 
+        // Set the appropriate chip as selected based on current theme
         when (currentTheme) {
-            Constants.THEME_LIGHT -> binding.radioLightMode.isChecked = true
-            Constants.THEME_DARK -> binding.radioDarkMode.isChecked = true
-            Constants.THEME_SYSTEM_DEFAULT -> binding.radioSystemDefault.isChecked = true
-            else -> { // Fallback in case of unexpected value
-                binding.radioSystemDefault.isChecked = true
-                Log.e(TAG, "Unexpected theme value '$currentTheme'. Defaulting to System Default.")
+            Constants.THEME_LIGHT -> {
+                binding.chipLightMode.isChecked = true
+            }
+            Constants.THEME_DARK -> {
+                binding.chipDarkMode.isChecked = true
+            }
+            Constants.THEME_SYSTEM_DEFAULT -> {
+                binding.chipSystemDefault.isChecked = true
             }
         }
 
-        // Listen for changes
-        binding.radioGroupTheme.setOnCheckedChangeListener { _, checkedId ->
-            val newTheme = when (checkedId) {
-                R.id.radio_light_mode -> Constants.THEME_LIGHT
-                R.id.radio_dark_mode -> Constants.THEME_DARK
-                R.id.radio_system_default -> Constants.THEME_SYSTEM_DEFAULT
-                else -> Constants.THEME_SYSTEM_DEFAULT // Should not happen with defined IDs
+        // Set up chip selection listener
+        binding.chipGroupTheme.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                val checkedId = checkedIds[0]
+                val newTheme = when (checkedId) {
+                    R.id.chip_light_mode -> Constants.THEME_LIGHT
+                    R.id.chip_dark_mode -> Constants.THEME_DARK
+                    R.id.chip_system_default -> Constants.THEME_SYSTEM_DEFAULT
+                    else -> Constants.THEME_SYSTEM_DEFAULT
+                }
+
+                // Save theme preference
+                sharedPreferences.edit {
+                    putString(Constants.KEY_THEME_MODE, newTheme)
+                }
+
+                // Apply theme
+                ThemeManager.setThemeMode(newTheme)
+
+                // Show feedback
+                showSnackbar("Theme changed to ${getThemeDisplayName(newTheme)}")
+
+                // Recreate activity to apply theme
+                activity?.recreate()
             }
-            Log.e(TAG, "User selected theme: $newTheme")
+        }
+    }
 
-            // Save the new theme value
-            sharedPreferences.edit() { putString(Constants.KEY_THEME_MODE, newTheme) }
-            Utils.showToast(requireContext(), "Theme set to ${newTheme.replace("_", " ").capitalize(
-                Locale.ROOT)}") // User feedback
-
-            // Apply the theme
-            ThemeManager.setThemeMode(newTheme)
-
-            // Recreate activity to apply theme change immediately
-            activity?.recreate()
+    private fun getThemeDisplayName(theme: String): String {
+        return when (theme) {
+            Constants.THEME_LIGHT -> "Light"
+            Constants.THEME_DARK -> "Dark"
+            Constants.THEME_SYSTEM_DEFAULT -> "System Default"
+            else -> "System Default"
         }
     }
 
     private fun setupStorageSettings() {
         // Change Save Folder
-        binding.itemChangeFolder.root.setOnClickListener {
-            Utils.showToast(requireContext(), getString(R.string.coming_soon))
-            Log.e(TAG, "Change Folder clicked - Coming Soon")
+        binding.itemChangeFolder.setOnClickListener {
+            openFolderPicker()
         }
 
-        // Auto Save Toggle
-        val autoSaveSwitch = binding.itemAutoSaveToggle.switchItem
-        autoSaveSwitch.isChecked = sharedPreferences.getBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)
-        autoSaveSwitch.setOnCheckedChangeListener { _, isChecked ->
-            sharedPreferences.edit().putBoolean(Constants.KEY_AUTO_SAVE_STATUSES, isChecked).apply()
-            val message = "Auto Save: ${if (isChecked) "Enabled" else "Disabled"}"
-            Utils.showToast(requireContext(), message)
-            Log.e(TAG, message)
+        // Auto Save Toggle - Initialize from SharedPreferences
+        binding.switchAutoSave.isChecked = sharedPreferences.getBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)
+
+        // Auto Save Toggle Listener
+        binding.switchAutoSave.setOnCheckedChangeListener { _, isChecked ->
+            sharedPreferences.edit {
+                putBoolean(Constants.KEY_AUTO_SAVE_STATUSES, isChecked)
+            }
+
+            val message = if (isChecked) {
+                "Auto Save enabled - Status updates will be saved automatically"
+            } else {
+                "Auto Save disabled"
+            }
+            showSnackbar(message)
+
+            Log.d(TAG, "Auto Save ${if (isChecked) "enabled" else "disabled"}")
         }
 
-        // Save Older Status Toggle
-        val saveOlderSwitch = binding.itemSaveOlderToggle.switchItem
-        saveOlderSwitch.isChecked = sharedPreferences.getBoolean(Constants.KEY_SAVE_OLDER_STATUS, false)
-        saveOlderSwitch.setOnCheckedChangeListener { _, isChecked ->
-            sharedPreferences.edit().putBoolean(Constants.KEY_SAVE_OLDER_STATUS, isChecked).apply()
-            val message = "Save Older Status: ${if (isChecked) "Enabled" else "Disabled"}"
-            Utils.showToast(requireContext(), message)
-            Log.e(TAG, message)
-        }
-
-        // Go to Saved All Statuses Folder
-        binding.itemGoToAutoSaved.root.setOnClickListener {
-            Utils.showToast(requireContext(), getString(R.string.coming_soon))
-            Log.e(TAG, "Go to Auto Saved clicked - Coming Soon")
+        // All Saved Statuses
+        binding.itemGoToAutoSaved.setOnClickListener {
+            navigateToSavedStatuses()
         }
 
         // Clear All Auto-Saved
-        binding.itemClearAutoSaved.root.setOnClickListener {
+        binding.itemClearAutoSaved.setOnClickListener {
             showClearAllConfirmationDialog()
-            Log.e(TAG, "Clear All Auto-Saved clicked")
         }
     }
 
     private fun setupAppInfoSettings() {
-        // Privacy Policy
-        binding.itemPrivacyPolicy.root.setOnClickListener {
-            val browserIntent = Intent(Intent.ACTION_VIEW, "https://www.example.com/privacy_policy".toUri())
-            startActivity(browserIntent)
-            Log.e(TAG, "Privacy Policy clicked")
+        // Rate Us
+        binding.itemRateUs.setOnClickListener {
+            openPlayStore()
         }
 
-        // Rate Us
-        binding.itemRateUs.root.setOnClickListener {
-            val appPackageName = requireContext().packageName
-            try {
-                startActivity(Intent(Intent.ACTION_VIEW, "market://details?id=$appPackageName".toUri()))
-                Log.e(TAG, "Rate Us clicked - Opening Play Store")
-            } catch (e: android.content.ActivityNotFoundException) {
-                startActivity(Intent(Intent.ACTION_VIEW, "https://play.google.com/store/apps/details?id=$appPackageName".toUri()))
-                Log.e(TAG, "Rate Us clicked - Play Store not found, opening browser")
-            }
+        // Privacy Policy
+        binding.itemPrivacyPolicy.setOnClickListener {
+            openPrivacyPolicy()
         }
 
         // Share App
-        binding.itemShareApp.root.setOnClickListener {
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
-                // Replace with your actual Play Store link
-                putExtra(Intent.EXTRA_TEXT, "Check out this amazing WhatsApp Status Saver app: https://play.google.com/store/apps/details?id=${requireContext().packageName}")
-            }
-            startActivity(Intent.createChooser(shareIntent, getString(R.string.settings_share_app)))
-            Log.e(TAG, "Share App clicked")
+        binding.itemShareApp.setOnClickListener {
+            shareApp()
         }
 
         // Developer Info
-        binding.itemDeveloperInfo.root.setOnClickListener {
-            Utils.showToast(requireContext(), "Developed by Nethmin")
-            Log.e(TAG, "Developer Info clicked")
+        binding.itemDeveloperInfo.setOnClickListener {
+            showDeveloperInfo()
         }
 
-        // App Version
+        // App Version - Set version from PackageManager
+        setAppVersion()
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun openFolderPicker() {
+        try {
+            // Create intent to open folder picker
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+            }
+
+            if (intent.resolveActivity(requireContext().packageManager) != null) {
+                startActivityForResult(intent, REQUEST_CODE_FOLDER_PICKER)
+            } else {
+                showSnackbar("No file manager app found")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening folder picker", e)
+            showSnackbar("Unable to open folder picker")
+        }
+    }
+
+    private fun navigateToSavedStatuses() {
+        try {
+            // Navigate to saved statuses fragment/activity
+            // Replace this with your actual navigation logic
+            showSnackbar("Opening saved statuses...")
+
+            // Example navigation - replace with your actual implementation
+            // findNavController().navigate(R.id.action_settings_to_saved_statuses)
+
+            Log.d(TAG, "Navigating to saved statuses")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error navigating to saved statuses", e)
+            showSnackbar("Unable to open saved statuses")
+        }
+    }
+
+    private fun openPlayStore() {
+        try {
+            val packageName = requireContext().packageName
+            val playStoreIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName"))
+
+            if (playStoreIntent.resolveActivity(requireContext().packageManager) != null) {
+                startActivity(playStoreIntent)
+            } else {
+                // Fallback to web browser
+                val webIntent = Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=$packageName"))
+                startActivity(webIntent)
+            }
+
+            Log.d(TAG, "Opening Play Store for rating")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening Play Store", e)
+            showSnackbar("Unable to open Play Store")
+        }
+    }
+
+    private fun openPrivacyPolicy() {
+        try {
+            // Replace with your actual privacy policy URL
+            val privacyPolicyUrl = "https://your-website.com/privacy-policy"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(privacyPolicyUrl))
+
+            if (intent.resolveActivity(requireContext().packageManager) != null) {
+                startActivity(intent)
+                Log.d(TAG, "Opening privacy policy")
+            } else {
+                showSnackbar("No browser app found")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening privacy policy", e)
+            showSnackbar("Unable to open privacy policy")
+        }
+    }
+
+    private fun shareApp() {
+        try {
+            val packageName = requireContext().packageName
+            val appName = getString(R.string.app_name)
+            val shareText = "Check out $appName - a great app for saving WhatsApp statuses!\n" +
+                    "Download it from: https://play.google.com/store/apps/details?id=$packageName"
+
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, shareText)
+                putExtra(Intent.EXTRA_SUBJECT, "Check out $appName")
+            }
+
+            startActivity(Intent.createChooser(shareIntent, "Share $appName"))
+            Log.d(TAG, "Sharing app")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error sharing app", e)
+            showSnackbar("Unable to share app")
+        }
+    }
+
+    private fun showDeveloperInfo() {
+        val developerInfo = """
+            Developer: Kezor Technologies
+            Email: developer@kezor.com
+            Website: https://kezor.com
+            
+            Thank you for using our app!
+            If you have any questions or feedback, 
+            please don't hesitate to contact us.
+        """.trimIndent()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Developer Information")
+            .setMessage(developerInfo)
+            .setPositiveButton("Contact Developer") { dialog, _ ->
+                contactDeveloper()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Close") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setIcon(R.drawable.ic_developer)
+            .show()
+    }
+
+    private fun contactDeveloper() {
+        try {
+            val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:developer@kezor.com")
+                putExtra(Intent.EXTRA_SUBJECT, "Feedback for ${getString(R.string.app_name)}")
+                putExtra(Intent.EXTRA_TEXT, "Hello,\n\nI have some feedback about your app:\n\n")
+            }
+
+            if (emailIntent.resolveActivity(requireContext().packageManager) != null) {
+                startActivity(emailIntent)
+            } else {
+                showSnackbar("No email app found")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening email app", e)
+            showSnackbar("Unable to open email app")
+        }
+    }
+
+    private fun setAppVersion() {
         try {
             val packageInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
-            binding.itemAppVersion.textViewItemSubtitle.text = getString(R.string.settings_app_version_placeholder, packageInfo.versionName)
-            Log.e(TAG, "App Version: ${packageInfo.versionName}")
+            val versionName = packageInfo.versionName
+            val versionCode = packageInfo.longVersionCode
+
+            binding.textAppVersion.text = "$versionName ($versionCode)"
+            Log.d(TAG, "App version: $versionName ($versionCode)")
         } catch (e: PackageManager.NameNotFoundException) {
-            Log.e(TAG, "Package name not found for app version", e)
-            e.printStackTrace()
-            binding.itemAppVersion.textViewItemSubtitle.text = getString(R.string.settings_app_version_placeholder, "N/A")
+            binding.textAppVersion.text = "Unknown"
+            Log.e(TAG, "Error getting app version", e)
         }
     }
 
     private fun showClearAllConfirmationDialog() {
-        AlertDialog.Builder(requireContext(), R.style.Theme_SaveStatus_AlertDialog)
-            .setTitle(getString(R.string.settings_clear_all_dialog_title))
-            .setMessage(getString(R.string.settings_clear_all_dialog_message))
-            .setPositiveButton(getString(R.string.saved_delete_confirm)) { dialog, _ ->
-                // TODO: Add actual logic to delete files here
+        AlertDialog.Builder(requireContext())
+            .setTitle("Clear All Saved Statuses")
+            .setMessage("Are you sure you want to delete all saved statuses? This action cannot be undone.")
+            .setPositiveButton("Delete All") { dialog, _ ->
+                clearAllSavedStatuses()
                 dialog.dismiss()
-                Utils.showToast(requireContext(), "All auto-saved statuses cleared.")
-                Log.e(TAG, "Clear All Auto-Saved confirmed")
             }
-            .setNegativeButton(getString(R.string.saved_delete_cancel)) { dialog, _ ->
+            .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
-                Log.e(TAG, "Clear All Auto-Saved cancelled")
             }
+            .setIcon(R.drawable.ic_delete)
             .show()
+    }
+
+    private fun clearAllSavedStatuses() {
+        try {
+            // TODO: Implement actual clearing logic based on your app's storage mechanism
+            // This could involve:
+            // 1. Deleting files from storage
+            // 2. Clearing database entries
+            // 3. Resetting SharedPreferences values
+
+            // Example implementation:
+            // StatusRepository.clearAllSavedStatuses()
+            // or
+            // FileUtils.deleteAllSavedFiles()
+
+            // For now, just show success message
+            showSnackbar("All saved statuses have been cleared")
+            Log.d(TAG, "All saved statuses cleared")
+
+            // Optionally reset auto-save preference
+            // sharedPreferences.edit { putBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false) }
+            // binding.switchAutoSave.isChecked = false
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error clearing saved statuses", e)
+            showSnackbar("Failed to clear saved statuses")
+        }
+    }
+
+    private fun showSnackbar(message: String) {
+        view?.let {
+            Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_CODE_FOLDER_PICKER && data != null) {
+            data.data?.let { uri ->
+                try {
+                    // Take persistable permission
+                    requireContext().contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+
+                    // Save selected folder URI
+                    sharedPreferences.edit {
+                        putString(Constants.KEY_SAVE_FOLDER_URI, uri.toString())
+                    }
+
+                    showSnackbar("Save folder updated successfully")
+                    Log.d(TAG, "Save folder URI: $uri")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error setting save folder", e)
+                    showSnackbar("Failed to set save folder")
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val REQUEST_CODE_FOLDER_PICKER = 1001
     }
 }

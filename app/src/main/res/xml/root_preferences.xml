@@ -6,7 +6,7 @@
         app:title="@string/settings_section_theme">
 
         <ListPreference
-            app:key="@string/settings_theme_selection"
+            app:key="${com.kezor.localsave.savestatus.utils.PreferenceKeys.THEME_SELECTION}"
             app:title="@string/settings_theme_selection_title"
             app:defaultValue="@string/settings_system_default"
             app:entries="@array/theme_entries"
@@ -19,28 +19,28 @@
         app:title="@string/settings_section_storage">
 
         <Preference
-            app:key="@string/settings_change_save_folder"
+            app:key="${com.kezor.localsave.savestatus.utils.PreferenceKeys.CHANGE_SAVE_FOLDER}"
             app:title="@string/settings_saved_status_location"
             app:summary="@string/settings_default_folder_path" />
 
         <SwitchPreferenceCompat
-            app:key="@string/settings_auto_save_toggle"
+            app:key="${com.kezor.localsave.savestatus.utils.PreferenceKeys.AUTO_SAVE_TOGGLE}"
             app:title="@string/settings_save_all_statuses_toggle_title"
             app:summary="@string/settings_save_all_statuses_toggle_summary"
             app:defaultValue="false" />
 
         <SwitchPreferenceCompat
-            app:key="@string/settings_save_older_toggle"
+            app:key="${com.kezor.localsave.savestatus.utils.PreferenceKeys.SAVE_OLDER_TOGGLE}"
             app:title="@string/settings_save_older_status_toggle_title"
             app:summary="@string/settings_save_older_status_toggle_summary"
             app:defaultValue="false" />
 
         <Preference
-            app:key="@string/settings_go_to_auto_saved"
+            app:key="${com.kezor.localsave.savestatus.utils.PreferenceKeys.GO_TO_AUTO_SAVED}"
             app:title="@string/settings_go_to_auto_saved" />
 
         <Preference
-            app:key="@string/settings_clear_all_auto_saved"
+            app:key="${com.kezor.localsave.savestatus.utils.PreferenceKeys.CLEAR_ALL_AUTO_SAVED}"
             app:title="@string/settings_clear_all_auto_saved" />
 
     </PreferenceCategory>
@@ -48,24 +48,25 @@
     <PreferenceCategory
         app:title="@string/settings_section_app_info">
 
+        <!-- These can remain as string resources since they're not preference keys -->
         <Preference
-            app:key="@string/settings_privacy_policy"
+            app:key="privacy_policy"
             app:title="@string/settings_privacy_policy" />
 
         <Preference
-            app:key="@string/settings_rate_us"
+            app:key="rate_us"
             app:title="@string/settings_rate_us" />
 
         <Preference
-            app:key="@string/settings_share_app"
+            app:key="share_app"
             app:title="@string/settings_share_app" />
 
         <Preference
-            app:key="@string/settings_developer_info"
+            app:key="developer_info"
             app:title="@string/settings_developer_info" />
 
         <Preference
-            app:key="@string/settings_app_version"
+            app:key="app_version"
             app:title="@string/settings_app_version"
             app:summary="@string/settings_app_version_placeholder" />
 

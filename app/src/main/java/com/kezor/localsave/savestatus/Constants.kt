@@ -41,4 +41,13 @@ object Constants {
     const val APP_SAVE_SUBDIRECTORY_NAME = "com.kezor"
     const val KEY_AUTO_SAVE_STATUSES = "auto_save_statuses"
     const val KEY_SAVE_OLDER_STATUS = "save_older_status"
+    const val KEY_SAVE_FOLDER_URI = "www.youtube.com"
+
+
+    const val THEME_SELECTION = "theme_selection"
+    const val AUTO_SAVE_TOGGLE = "auto_save_toggle"
+    const val SAVE_OLDER_TOGGLE = "save_older_toggle"
+    const val GO_TO_AUTO_SAVED = "go_to_auto_saved"
+    const val CLEAR_ALL_AUTO_SAVED = "clear_all_auto_saved"
+    const val CHANGE_SAVE_FOLDER = "change_save_folder"
 }

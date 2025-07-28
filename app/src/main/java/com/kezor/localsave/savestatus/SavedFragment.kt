@@ -211,6 +211,7 @@ class SavedFragment : Fragment() {
         }
     }
 
+    @SuppressLint("StringFormatInvalid")
     private fun updateActionModeTitle() {
         actionMode?.title = getString(R.string.saved_selection_mode_title, selectedItems.size)
     }
@@ -272,6 +273,7 @@ class SavedFragment : Fragment() {
             .show()
     }
 
+    @SuppressLint("StringFormatInvalid")
     private fun deleteSelectedItems() {
         val itemsToDelete = selectedItems.toList() // Create a copy to avoid modification issues
         actionMode?.finish() // Finish action mode immediately
