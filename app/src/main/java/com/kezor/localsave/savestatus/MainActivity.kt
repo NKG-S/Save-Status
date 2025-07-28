@@ -59,6 +59,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Apply the theme before calling super.onCreate() to ensure it takes effect
+        // immediately upon activity creation.
         ThemeManager.applyTheme(this)
         super.onCreate(savedInstanceState)
 
@@ -74,6 +76,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // Re-check permissions and adjust UI visibility on resume
         if (!checkStoragePermission()) {
             showPermissionRequiredUI()
         } else {

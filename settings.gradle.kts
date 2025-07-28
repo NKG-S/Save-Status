@@ -14,8 +14,8 @@ pluginManagement {
     // Define the versions for plugins used across the project
     // This is crucial for Gradle to find the plugins themselves
     plugins {
-        id("androidx.navigation.safeargs.kotlin") version "2.7.7" // Safe Args plugin version
-        id("kotlin-parcelize") version "1.9.0" // Parcelize plugin version (match your Kotlin version)
+        id("androidx.navigation.safeargs.kotlin") version "2.9.2"
+        id("kotlin-parcelize") version "1.9.0"
     }
 }
 dependencyResolutionManagement {
