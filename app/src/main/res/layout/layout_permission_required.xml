@@ -3,63 +3,69 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UseAppTint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
-    android:padding="24dp">
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <!-- Chain style to center all content vertically -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/centerGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.50" />
 
     <ImageView
         android:id="@+id/icon_permission"
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:src="@drawable/ic_folder_open_outlined"
-        app:tint="?attr/colorPrimary"
+        android:tint="?attr/colorPrimary"
         android:contentDescription="@string/cd_permission_icon"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:layout_constraintBottom_toTopOf="@+id/text_view_permission_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.4" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/text_view_permission_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/permission_required_title"
-        android:textAppearance="?attr/textAppearanceHeadlineSmall"
-        android:textColor="?attr/colorOnSurface"
-        android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/text_view_permission_message"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/text_permission_title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/icon_permission" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"/>
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/text_view_permission_message"
+        android:id="@+id/text_permission_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/permission_storage_message"
-        android:textAppearance="?attr/textAppearanceBodyLarge"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:text="@string/permission_required_title"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
         android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/btn_grant_permission"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/icon_permission"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_view_permission_title" />
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/text_permission_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/permission_required_message"
+        android:textSize="16sp"
+        android:textColor="@android:color/darker_gray"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/text_permission_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_grant_permission"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:text="@string/permission_grant_button"
-        app:layout_constraintBottom_toTopOf="@+id/btn_go_to_settings"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_permission_message"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_view_permission_message" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_go_to_settings"
@@ -67,10 +73,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/permission_settings_button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/permission_go_to_settings_button"
+        android:textColor="?attr/colorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/btn_grant_permission"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_grant_permission" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

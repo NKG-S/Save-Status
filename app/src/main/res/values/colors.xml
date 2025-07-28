@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Material Design 3 Palette Colors (Light Theme) -->
     <color name="md_theme_primary">#006B5F</color>
+    <color name="background">#FFFFFF</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
     <color name="md_theme_primaryContainer">#73F8E2</color>
     <color name="md_theme_onPrimaryContainer">#00201C</color>
@@ -23,24 +25,29 @@
     <color name="md_theme_surfaceTint">#006B5F</color>
     <color name="md_theme_scrim">#000000</color>
     <color name="md_theme_surfaceContainerHighest">#E3E3E3</color>
-
-    <color name="light_background">#FFFFFF</color>
-    <color name="light_onBackground">#1C1B1F</color>
-    <color name="light_card_surface">#F5F5F5</color>
-    <color name="bottom_nav_selected">@color/md_theme_primary</color>
-    <color name="bottom_nav_unselected">@color/md_theme_onSurfaceVariant</color>
-    <color name="pixel_accent">#C3C3C3</color>
-    <color name="pixel_dark_surface">#434343</color>
-
-    <color name="md_theme_background">#FBFDFB</color>
-    <color name="md_theme_onBackground">#191C1B</color>
-    <color name="md_theme_surface">#FBFDFB</color>
-    <color name="md_theme_onSurface">#191C1B</color>
-    <color name="md_theme_surfaceVariant">#DBE5E1</color>
-    <color name="md_theme_onSurfaceVariant">#3F4947</color>
-
-    <!-- Re-added missing outline colors -->
     <color name="md_theme_outline">#6F7977</color>
     <color name="md_theme_outlineVariant">#BFC9C6</color>
+
+    <!-- Core Theme Colors for Background and Text -->
+    <color name="md_theme_background">#FBFDFB</color> <!-- Light background -->
+    <color name="md_theme_onBackground">#191C1B</color> <!-- Dark letters -->
+    <color name="md_theme_surface">#FBFDFB</color> <!-- Light surface -->
+    <color name="md_theme_onSurface">#191C1B</color> <!-- Dark letters -->
+    <color name="md_theme_surfaceVariant">#DBE5E1</color>
+    <color name="md_theme_onSurfaceVariant">#3F4947</color> <!-- Calm dark for icons/secondary text -->
+
+    <!-- Custom Colors for Specific UI Elements -->
+    <color name="bottom_nav_selected">@color/md_theme_primary</color>
+    <color name="bottom_nav_unselected">@color/md_theme_onSurfaceVariant</color>
+
+    <!-- Media Controls Specific Colors (can be consistent across themes if desired) -->
+    <color name="media_controls_background">#80000000</color> <!-- Semi-transparent black -->
+    <color name="media_controls_text_color">#FFFFFF</color> <!-- White text on dark controls -->
+    <color name="media_controls_buffered_color">#B3FFFFFF</color> <!-- Semi-transparent white for buffered progress -->
+    <color name="media_controls_unplayed_color">#4DFFFFFF</color> <!-- More transparent white for unplayed progress -->
+    <color name="media_controls_icon_tint">#FFFFFF</color> <!-- White icons on dark controls -->
+
+    <!-- Overlay color for selected items in lists -->
+    <color name="overlay_background_dark">#80000000</color> <!-- Semi-transparent black for overlays -->
 
 </resources>

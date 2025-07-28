@@ -6,6 +6,9 @@
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainer</item>
+        <item name="background">@color/background</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Material3.HeadlineSmall</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Material3.BodyMedium</item>
 
         <item name="colorSecondary">@color/md_theme_secondary</item>
         <item name="colorOnSecondary">@color/md_theme_onSecondary</item>

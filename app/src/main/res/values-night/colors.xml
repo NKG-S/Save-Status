@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="md_theme_primary">#53DBCA</color>
+    <color name="md_theme_primary">#25D366</color>
     <color name="md_theme_onPrimary">#003730</color>
     <color name="md_theme_primaryContainer">#005047</color>
     <color name="md_theme_onPrimaryContainer">#73F8E2</color>
@@ -33,8 +33,14 @@
     <color name="md_theme_surfaceVariant">#3F4947</color>
     <color name="md_theme_onSurfaceVariant">#BFC9C6</color>
 
-    <!-- Re-added missing outline colors -->
     <color name="md_theme_outline">#899391</color>
     <color name="md_theme_outlineVariant">#3F4947</color>
+
+    <!-- Custom colors for media controls (dark theme) -->
+    <color name="media_controls_background">#B3000000</color> <!-- Slightly more opaque black for dark controls -->
+    <color name="media_controls_text_color">#FFFFFF</color> <!-- White text on dark controls -->
+    <color name="media_controls_buffered_color">#B3FFFFFF</color> <!-- Semi-transparent white for buffered progress -->
+    <color name="media_controls_unplayed_color">#4DFFFFFF</color> <!-- More transparent white for unplayed progress -->
+    <color name="media_controls_icon_tint">#FFFFFF</color> <!-- White icons on dark controls -->
 
 </resources>

@@ -73,7 +73,8 @@
                         android:minHeight="48dp"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
-                        android:contentDescription="@string/cd_theme_switch"/>
+                        android:contentDescription="@string/cd_theme_switch"
+                        android:textColor="?attr/colorOnSurface"/>
 
                     <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/radio_light_mode"
@@ -84,7 +85,8 @@
                         android:minHeight="48dp"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
-                        android:contentDescription="@string/cd_theme_switch"/>
+                        android:contentDescription="@string/cd_theme_switch"
+                        android:textColor="?attr/colorOnSurface"/>
 
                     <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/radio_dark_mode"
@@ -95,7 +97,8 @@
                         android:minHeight="48dp"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
-                        android:contentDescription="@string/cd_theme_switch"/>
+                        android:contentDescription="@string/cd_theme_switch"
+                        android:textColor="?attr/colorOnSurface"/>
                 </RadioGroup>
             </com.google.android.material.card.MaterialCardView>
 
