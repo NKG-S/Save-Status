@@ -1,9 +1,10 @@
+@file:Suppress("DEPRECATION")
+
 package com.kezor.localsave.savestatus
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -23,7 +24,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-
+import com.kezor.localsave.savestatus.R
+import com.kezor.localsave.savestatus.SavedFragmentDirections
+import androidx.core.content.FileProvider // Added missing import for FileProvider
+import android.os.Parcelable // Added import for Parcelable
 
 class SavedFragment : Fragment() {
 
@@ -68,7 +72,7 @@ class SavedFragment : Fragment() {
                         mediaItem,
                         currentMediaList.toTypedArray(),
                         position,
-                        true
+                        true // Pass true for isFromSavedSection when navigating from SavedFragment
                     )
                     findNavController().navigate(action)
                 }
@@ -124,50 +128,70 @@ class SavedFragment : Fragment() {
     private fun loadMedia(mediaType: String) {
         binding.swipeRefreshLayout.isRefreshing = true
         binding.textViewEmptyState.visibility = View.GONE
-        savedAdapter.isSelectionMode = false // Exit selection mode on refresh
+        savedAdapter.isSelectionMode = false
         actionMode?.finish()
 
         lifecycleScope.launch(Dispatchers.IO) {
             val savedMediaList = mutableListOf<MediaItem>()
-            val saveFolderPath = getSavedFolderPath() // Get the user-defined or default save folder
+            val saveFolderPath = getSavedFolderPath() // Get path using consistent logic
 
-            val saveDir = File(saveFolderPath)
-            if (saveDir.exists() && saveDir.isDirectory) {
-                val files = saveDir.listFiles()
-                files?.filter { it.isFile && !it.name.startsWith(".") &&
-                        ((mediaType == Constants.MEDIA_TYPE_IMAGE && (it.extension == "jpg" || it.extension == "jpeg" || it.extension == "png")) ||
-                                (mediaType == Constants.MEDIA_TYPE_VIDEO && (it.extension == "mp4" || it.extension == "avi" || it.extension == "mkv")))
-                }?.map { file ->
-                    savedMediaList.add(
-                        MediaItem(
-                            file = file,
-                            uri = file.absolutePath,
-                            type = if (file.extension == "mp4" || file.extension == "avi" || file.extension == "mkv") Constants.MEDIA_TYPE_VIDEO else Constants.MEDIA_TYPE_IMAGE,
-                            lastModified = file.lastModified()
+            if (true) {
+                val saveDir = File(saveFolderPath)
+
+                if (saveDir.exists() && saveDir.isDirectory) {
+                    val files = saveDir.listFiles()
+
+                    files?.filter { file ->
+                        file.isFile && !file.name.startsWith(".") &&
+                                ((mediaType == Constants.MEDIA_TYPE_IMAGE &&
+                                        listOf("jpg", "jpeg", "png").contains(file.extension.lowercase())) ||
+                                        (mediaType == Constants.MEDIA_TYPE_VIDEO &&
+                                                listOf("mp4", "avi", "mkv").contains(file.extension.lowercase())))
+                    }?.forEach { file ->
+                        savedMediaList.add(
+                            MediaItem(
+                                file = file,
+                                uri = file.absolutePath,
+                                type = if (listOf("mp4", "avi", "mkv").contains(file.extension.lowercase()))
+                                    Constants.MEDIA_TYPE_VIDEO
+                                else Constants.MEDIA_TYPE_IMAGE,
+                                lastModified = file.lastModified()
+                            )
                         )
-                    )
+                    }
                 }
             }
 
-            // Sort by newest first
             savedMediaList.sortByDescending { it.lastModified }
 
             withContext(Dispatchers.Main) {
-                if (savedMediaList.isEmpty()) {
-                    binding.textViewEmptyState.visibility = View.VISIBLE
-                } else {
-                    binding.textViewEmptyState.visibility = View.GONE
-                }
-                currentMediaList = savedMediaList // Update the list held by the fragment
+                binding.textViewEmptyState.visibility =
+                    if (savedMediaList.isEmpty()) View.VISIBLE else View.GONE
+
+                currentMediaList = savedMediaList
                 savedAdapter.submitList(savedMediaList)
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         }
     }
 
+
     private fun getSavedFolderPath(): String {
-        return Environment.getExternalStorageDirectory().absolutePath + Constants.KEY_SAVE_FOLDER_PATH
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val customPath = prefs.getString(Constants.KEY_SAVE_FOLDER_PATH, null)
+
+        return if (!customPath.isNullOrEmpty()) {
+            customPath
+        } else {
+            // Default to the app's primary external media directory first
+            requireContext().externalMediaDirs.firstOrNull()?.absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME
+                ?: // Fallback to primary external files directory if externalMediaDirs is null/empty
+                (requireContext().getExternalFilesDir(null)?.absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME)
+                ?: // Last resort: app's internal files directory (less ideal for user-saved media)
+                (requireContext().filesDir.absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME)
+        }
     }
+
 
     private fun startSelectionMode(initialItem: MediaItem) {
         if (actionMode == null) {
@@ -270,15 +294,17 @@ class SavedFragment : Fragment() {
         }
 
         val fileUris = selectedItems.map { mediaItem ->
-            // For sharing, you might need a FileProvider for security reasons,
-            // especially if sharing files outside your app's private directory.
-            // For simplicity, directly using Uri.fromFile for now, but be aware of limitations.
-            Uri.fromFile(mediaItem.file)
+            FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider", // Authority must match AndroidManifest.xml
+                mediaItem.file
+            )
         }
 
         val shareIntent = Intent().apply {
             action = Intent.ACTION_SEND_MULTIPLE
-            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(fileUris))
+            // Explicitly cast the ArrayList to ArrayList<Parcelable>
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList<Parcelable>(fileUris))
             type = "*/*" // Or specific mime types if all are images/videos
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }

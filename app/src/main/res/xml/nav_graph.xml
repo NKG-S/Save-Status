@@ -1,11 +1,56 @@
-<fragment android:id="@+id/mediaViewerFragment"
-    android:name="com.kezor.localsave.savestatus.MediaViewerFragment"
-    tools:layout="@layout/fragment_media_viewer"
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-    <argument android:name="mediaItem" app:argType="com.kezor.localsave.savestatus.MediaItem" />
-    <argument android:name="mediaList" app:argType="com.kezor.localsave.savestatus.MediaItem[]" />
-    <argument android:name="currentIndex" app:argType="integer" />
-    <argument android:name="isSavedMedia" app:argType="boolean" />
-</fragment>
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.kezor.localsave.savestatus.SplashFragment"
+        android:label="SplashFragment"
+        tools:layout="@layout/fragment_splash">
+        <action
+            android:id="@+id/action_splashFragment_to_statusFragment"
+            app:destination="@id/statusFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/statusFragment"
+        android:name="com.kezor.localsave.savestatus.StatusFragment"
+        android:label="StatusFragment"
+        tools:layout="@layout/fragment_status"> <action
+        android:id="@+id/action_statusFragment_to_mediaViewerFragment"
+        app:destination="@id/mediaViewerFragment" />
+        <action
+            android:id="@+id/action_statusFragment_to_savedFragment"
+            app:destination="@id/savedFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/savedFragment"
+        android:name="com.kezor.localsave.savestatus.SavedFragment"
+        android:label="SavedFragment"
+        tools:layout="@layout/fragment_saved"> <action
+        android:id="@+id/action_navigation_saved_to_mediaViewerFragment"
+        app:destination="@id/mediaViewerFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mediaViewerFragment"
+        android:name="com.kezor.localsave.savestatus.MediaViewerFragment"
+        android:label="MediaViewerFragment" >
+        <argument
+            android:name="mediaList"
+            app:argType="com.kezor.localsave.savestatus.MediaItem[]" />
+        <argument
+            android:name="currentIndex"
+            app:argType="integer" />
+        <argument
+            android:name="isFromSavedSection"
+            app:argType="boolean"
+            android:defaultValue="false" /> </fragment>
+
+</navigation>

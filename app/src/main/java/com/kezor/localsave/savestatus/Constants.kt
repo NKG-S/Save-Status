@@ -43,7 +43,7 @@ object Constants {
 
     // Preference keys
     const val KEY_SAVE_FOLDER_PATH = "/Android/media/com.kezor"
-//    const val KEY_SAVE_FOLDER_PATH = "save_folder_path"
+    const val APP_SAVE_SUBDIRECTORY_NAME = "com.kezor"
     const val KEY_AUTO_SAVE_STATUSES = "auto_save_statuses"
     const val KEY_SAVE_OLDER_STATUS = "save_older_status"
 
