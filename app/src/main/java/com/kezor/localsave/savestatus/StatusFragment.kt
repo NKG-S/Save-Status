@@ -25,6 +25,9 @@ class StatusFragment : Fragment() {
     private lateinit var statusAdapter: StatusAdapter
     private var currentMediaType: String = Constants.MEDIA_TYPE_IMAGE
 
+    // This will hold the current list of media items displayed in the RecyclerView
+    private var currentMediaList: List<MediaItem> = emptyList()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,9 +49,14 @@ class StatusFragment : Fragment() {
 
     private fun setupRecyclerView() {
         statusAdapter = StatusAdapter(
-            onItemClick = { mediaItem, _ ->
+            onItemClick = { mediaItem, position -> // This 'position' will now correctly be an Int
                 // Navigate to MediaViewerFragment
-                val action = StatusFragmentDirections.actionStatusToMediaViewerFragment(mediaItem, false) // Correct usage of StatusFragmentDirections
+                val action = StatusFragmentDirections.actionNavigationStatusToMediaViewerFragment(
+                    mediaItem,
+                    currentMediaList.toTypedArray(),
+                    position,
+                    false
+                )
                 findNavController().navigate(action)
             },
             onItemLongClick = { mediaItem, _ ->
@@ -142,6 +150,7 @@ class StatusFragment : Fragment() {
                 } else {
                     binding.textViewEmptyState.visibility = View.GONE
                 }
+                currentMediaList = distinctMediaList // Update the list held by the fragment
                 statusAdapter.submitList(distinctMediaList)
                 binding.swipeRefreshLayout.isRefreshing = false
             }

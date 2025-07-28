@@ -3,6 +3,7 @@ package com.kezor.localsave.savestatus
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -23,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+
 class SavedFragment : Fragment() {
 
     private var _binding: FragmentSavedBinding? = null
@@ -32,6 +34,9 @@ class SavedFragment : Fragment() {
     private var currentMediaType: String = Constants.MEDIA_TYPE_IMAGE
     private var actionMode: ActionMode? = null
     private val selectedItems = mutableSetOf<MediaItem>()
+
+    // This will hold the current list of media items displayed in the RecyclerView
+    private var currentMediaList: List<MediaItem> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,16 +58,23 @@ class SavedFragment : Fragment() {
 
     private fun setupRecyclerView() {
         savedAdapter = StatusAdapter(
-            onItemClick = { mediaItem, _ ->
+            onItemClick = { mediaItem, position -> // This 'position' will now correctly be an Int
                 if (actionMode != null) {
+                    // If in selection mode, toggle item selection
                     toggleSelection(mediaItem)
                 } else {
-                    // Correct usage of SavedFragmentDirections
-                    val action = SavedFragmentDirections.actionSavedToMediaViewerFragment(mediaItem, true)
+                    // Not in selection mode, navigate to MediaViewerFragment
+                    val action = SavedFragmentDirections.actionNavigationSavedToMediaViewerFragment(
+                        mediaItem,
+                        currentMediaList.toTypedArray(),
+                        position,
+                        true
+                    )
                     findNavController().navigate(action)
                 }
             },
             onItemLongClick = { mediaItem, _ ->
+                // Enter selection mode
                 startSelectionMode(mediaItem)
             },
             onSelectionChanged = { mediaItem, isSelected ->
@@ -72,13 +84,14 @@ class SavedFragment : Fragment() {
                     selectedItems.remove(mediaItem)
                 }
                 updateActionModeTitle()
+                // If no items are selected, exit selection mode
                 if (selectedItems.isEmpty() && actionMode != null) {
                     actionMode?.finish()
                 }
             }
         )
         binding.recyclerViewSaved.apply {
-            layoutManager = GridLayoutManager(context, 2)
+            layoutManager = GridLayoutManager(context, 2) // 2 columns for grid layout
             adapter = savedAdapter
         }
     }
@@ -96,6 +109,7 @@ class SavedFragment : Fragment() {
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {
+                // Reload data if the same tab is reselected
                 loadMedia(currentMediaType)
             }
         })
@@ -110,12 +124,12 @@ class SavedFragment : Fragment() {
     private fun loadMedia(mediaType: String) {
         binding.swipeRefreshLayout.isRefreshing = true
         binding.textViewEmptyState.visibility = View.GONE
-        savedAdapter.isSelectionMode = false
+        savedAdapter.isSelectionMode = false // Exit selection mode on refresh
         actionMode?.finish()
 
         lifecycleScope.launch(Dispatchers.IO) {
             val savedMediaList = mutableListOf<MediaItem>()
-            val saveFolderPath = getSavedFolderPath()
+            val saveFolderPath = getSavedFolderPath() // Get the user-defined or default save folder
 
             val saveDir = File(saveFolderPath)
             if (saveDir.exists() && saveDir.isDirectory) {
@@ -124,15 +138,18 @@ class SavedFragment : Fragment() {
                         ((mediaType == Constants.MEDIA_TYPE_IMAGE && (it.extension == "jpg" || it.extension == "jpeg" || it.extension == "png")) ||
                                 (mediaType == Constants.MEDIA_TYPE_VIDEO && (it.extension == "mp4" || it.extension == "avi" || it.extension == "mkv")))
                 }?.map { file ->
-                    MediaItem(
-                        file = file,
-                        uri = file.absolutePath,
-                        type = if (file.extension == "mp4" || file.extension == "avi" || file.extension == "mkv") Constants.MEDIA_TYPE_VIDEO else Constants.MEDIA_TYPE_IMAGE,
-                        lastModified = file.lastModified()
+                    savedMediaList.add(
+                        MediaItem(
+                            file = file,
+                            uri = file.absolutePath,
+                            type = if (file.extension == "mp4" || file.extension == "avi" || file.extension == "mkv") Constants.MEDIA_TYPE_VIDEO else Constants.MEDIA_TYPE_IMAGE,
+                            lastModified = file.lastModified()
+                        )
                     )
                 }
             }
 
+            // Sort by newest first
             savedMediaList.sortByDescending { it.lastModified }
 
             withContext(Dispatchers.Main) {
@@ -141,6 +158,7 @@ class SavedFragment : Fragment() {
                 } else {
                     binding.textViewEmptyState.visibility = View.GONE
                 }
+                currentMediaList = savedMediaList // Update the list held by the fragment
                 savedAdapter.submitList(savedMediaList)
                 binding.swipeRefreshLayout.isRefreshing = false
             }
@@ -148,9 +166,7 @@ class SavedFragment : Fragment() {
     }
 
     private fun getSavedFolderPath(): String {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        return prefs.getString(Constants.KEY_SAVE_FOLDER_PATH, null)
-            ?: (requireContext().getExternalFilesDir(null)?.absolutePath + File.separator + Constants.DEFAULT_SAVE_FOLDER_NAME)
+        return Environment.getExternalStorageDirectory().absolutePath + Constants.KEY_SAVE_FOLDER_PATH
     }
 
     private fun startSelectionMode(initialItem: MediaItem) {
@@ -158,7 +174,7 @@ class SavedFragment : Fragment() {
             actionMode = (activity as? AppCompatActivity)?.startSupportActionMode(actionModeCallback)
             savedAdapter.isSelectionMode = true
             selectedItems.clear()
-            toggleSelection(initialItem)
+            toggleSelection(initialItem) // Select the item that was long-pressed
         }
     }
 
@@ -184,22 +200,23 @@ class SavedFragment : Fragment() {
         override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
             mode?.menuInflater?.inflate(R.menu.selection_mode_menu, menu)
             mode?.title = getString(R.string.saved_selection_mode_title, 0)
-            binding.appBarLayout.visibility = View.GONE
+            binding.appBarLayout.visibility = View.GONE // Hide normal app bar
             return true
         }
 
         override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-            return false
+            return false // Nothing to do here
         }
 
         override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
             return when (item?.itemId) {
                 R.id.action_delete -> {
                     showDeleteConfirmationDialog()
-                    mode?.finish()
+                    mode?.finish() // Finish action mode after action
                     true
                 }
                 R.id.action_share -> {
+                    // Implement share functionality for selected items
                     shareSelectedItems()
                     mode?.finish()
                     true
@@ -212,12 +229,12 @@ class SavedFragment : Fragment() {
             actionMode = null
             savedAdapter.isSelectionMode = false
             selectedItems.clear()
-            binding.appBarLayout.visibility = View.VISIBLE
+            binding.appBarLayout.visibility = View.VISIBLE // Show normal app bar
         }
     }
 
     private fun showDeleteConfirmationDialog() {
-        AlertDialog.Builder(requireContext(), R.style.Theme_SaveStatus_AlertDialog)
+        AlertDialog.Builder(requireContext(), R.style.Theme_SaveStatus_AlertDialog) // Use app theme for dialog
             .setTitle(getString(R.string.saved_delete_confirmation_title))
             .setMessage(getString(R.string.saved_delete_confirmation_message))
             .setPositiveButton(getString(R.string.saved_delete_confirm)) { dialog, _ ->
@@ -226,7 +243,6 @@ class SavedFragment : Fragment() {
             }
             .setNegativeButton(getString(R.string.saved_delete_cancel)) { dialog, _ ->
                 dialog.dismiss()
-                actionMode?.finish()
             }
             .show()
     }
@@ -238,11 +254,11 @@ class SavedFragment : Fragment() {
             withContext(Dispatchers.Main) {
                 if (deletedCount > 0) {
                     Utils.showToast(requireContext(), getString(R.string.saved_items_deleted, deletedCount))
-                    loadMedia(currentMediaType)
+                    loadMedia(currentMediaType) // Reload media after deletion
                 } else {
                     Utils.showToast(requireContext(), getString(R.string.saved_delete_failed))
                 }
-                actionMode?.finish()
+                actionMode?.finish() // Exit selection mode
             }
         }
     }
@@ -254,21 +270,25 @@ class SavedFragment : Fragment() {
         }
 
         val fileUris = selectedItems.map { mediaItem ->
+            // For sharing, you might need a FileProvider for security reasons,
+            // especially if sharing files outside your app's private directory.
+            // For simplicity, directly using Uri.fromFile for now, but be aware of limitations.
             Uri.fromFile(mediaItem.file)
         }
 
         val shareIntent = Intent().apply {
             action = Intent.ACTION_SEND_MULTIPLE
             putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(fileUris))
-            type = "*/*"
+            type = "*/*" // Or specific mime types if all are images/videos
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         startActivity(Intent.createChooser(shareIntent, "Share Statuses"))
     }
 
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        actionMode?.finish()
+        actionMode?.finish() // Ensure action mode is dismissed if fragment is destroyed
     }
 }

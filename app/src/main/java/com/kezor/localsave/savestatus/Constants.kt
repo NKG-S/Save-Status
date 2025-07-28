@@ -42,7 +42,7 @@ object Constants {
     // Default folder name for saving statuses within the app's external files directory
 
     // Preference keys
-    const val KEY_SAVE_FOLDER_PATH = "/Android/media/com.kezor/SaveStatus"
+    const val KEY_SAVE_FOLDER_PATH = "/Android/media/com.kezor"
 //    const val KEY_SAVE_FOLDER_PATH = "save_folder_path"
     const val KEY_AUTO_SAVE_STATUSES = "auto_save_statuses"
     const val KEY_SAVE_OLDER_STATUS = "save_older_status"

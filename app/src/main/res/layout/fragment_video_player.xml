@@ -21,7 +21,7 @@
         app:controller_layout_id="@layout/exoplayer_custom_controls"
         app:resize_mode="fit"
         app:time_bar_min_update_interval="1000"
-        app:show_timeout="1000"/> <!-- Reduced timeout to 1.5 seconds -->
+        app:show_timeout="1000"/>
 
     <!-- Top App Bar - overlaid on top of the video player -->
     <com.google.android.material.appbar.AppBarLayout

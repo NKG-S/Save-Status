@@ -1,0 +1,11 @@
+<fragment android:id="@+id/mediaViewerFragment"
+    android:name="com.kezor.localsave.savestatus.MediaViewerFragment"
+    tools:layout="@layout/fragment_media_viewer"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <argument android:name="mediaItem" app:argType="com.kezor.localsave.savestatus.MediaItem" />
+    <argument android:name="mediaList" app:argType="com.kezor.localsave.savestatus.MediaItem[]" />
+    <argument android:name="currentIndex" app:argType="integer" />
+    <argument android:name="isSavedMedia" app:argType="boolean" />
+</fragment>

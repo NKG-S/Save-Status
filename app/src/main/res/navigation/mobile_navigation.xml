@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_status">
+    app:startDestination="@id/navigation_status">
 
     <fragment
         android:id="@+id/navigation_status"
@@ -11,20 +11,18 @@
         android:label="@string/title_status"
         tools:layout="@layout/fragment_status" >
         <action
-            android:id="@+id/action_status_to_mediaViewerFragment"
+            android:id="@+id/action_navigation_status_to_mediaViewerFragment"
             app:destination="@id/mediaViewerFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/navigation_saved"
         android:name="com.kezor.localsave.savestatus.SavedFragment"
         android:label="@string/title_saved"
         tools:layout="@layout/fragment_saved" >
         <action
-            android:id="@+id/action_saved_to_mediaViewerFragment"
+            android:id="@+id/action_navigation_saved_to_mediaViewerFragment"
             app:destination="@id/mediaViewerFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/navigation_settings"
         android:name="com.kezor.localsave.savestatus.SettingsFragment"
@@ -34,14 +32,19 @@
     <fragment
         android:id="@+id/mediaViewerFragment"
         android:name="com.kezor.localsave.savestatus.MediaViewerFragment"
-        android:label="MediaViewerFragment" >
-        <argument
-            android:name="mediaItem"
-            app:argType="com.kezor.localsave.savestatus.MediaItem" />
+        android:label="MediaViewerFragment"
+        tools:layout="@layout/fragment_image_viewer" > <argument
+        android:name="mediaItem"
+        app:argType="com.kezor.localsave.savestatus.MediaItem" />
         <argument
             android:name="isSavedMedia"
             app:argType="boolean"
             android:defaultValue="false" />
+        <argument
+            android:name="mediaList"
+            app:argType="com.kezor.localsave.savestatus.MediaItem[]" />
+        <argument
+            android:name="currentIndex"
+            app:argType="integer" />
     </fragment>
-
 </navigation>
