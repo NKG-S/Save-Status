@@ -32,22 +32,19 @@
             android:paddingEnd="16dp" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Bottom Action Card -->
-
-    <ImageView
+    <!-- Image View with pinch-to-zoom capability -->
+    <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/image_full_screen"
-        android:layout_width="411dp"
-        android:layout_height="584dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:contentDescription="@string/cd_media_thumbnail"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/action_bar_container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/app_bar_layout"
-        app:layout_constraintVertical_bias="0.435"
+        app:layout_constraintTop_toBottomOf="@+id/app_bar_layout"
         tools:src="@tools:sample/backgrounds/scenic" />
 
+    <!-- Bottom Action Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/action_bar_container"
         android:layout_width="match_parent"
