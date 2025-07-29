@@ -1,5 +1,4 @@
 @file:Suppress("DEPRECATION")
-
 package com.kezor.localsave.savestatus
 
 import android.annotation.SuppressLint
@@ -112,20 +111,22 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateCurrentSavePathDisplay() {
         val currentPath = getSavedFolderPath()
         binding.textCurrentSavePath.text = "Current save location: $currentPath"
     }
 
+    @SuppressLint("UseKtx")
     private fun getSavedFolderPath(): String {
-        val customUri = sharedPreferences.getString(Constants.KEY_SAVE_FOLDER_URI, null)
-
-        return if (!customUri.isNullOrEmpty()) {
+        val customUriString = sharedPreferences.getString(Constants.KEY_SAVE_FOLDER_URI, null)
+        return if (!customUriString.isNullOrEmpty()) {
             try {
-                val uri = Uri.parse(customUri)
-                DocumentFile.fromTreeUri(requireContext(), uri)?.name ?: "Custom location"
+                val uri = Uri.parse(customUriString)
+                return uri.toString()
             } catch (e: Exception) {
-                "Custom location"
+                e.printStackTrace()
+                "Custom location (Error parsing URI)"
             }
         } else {
             getDefaultSavePath()
@@ -241,6 +242,8 @@ class SettingsFragment : Fragment() {
         }
     }
 
+
+    @SuppressLint("UseKtx", "QueryPermissionsNeeded")
     private fun openPlayStore() {
         try {
             val packageName = requireContext().packageName
@@ -259,6 +262,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    @SuppressLint("UseKtx", "QueryPermissionsNeeded")
     private fun openPrivacyPolicy() {
         try {
             val privacyPolicyUrl = "https://your-website.com/privacy-policy"
@@ -312,6 +316,7 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
+    @SuppressLint("UseKtx", "QueryPermissionsNeeded")
     private fun contactDeveloper() {
         try {
             val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
@@ -330,6 +335,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setAppVersion() {
         try {
             val packageInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
