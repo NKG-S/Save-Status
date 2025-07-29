@@ -20,6 +20,7 @@ glide = "4.16.0"
 exoplayer = "2.19.1"
 preferenceKtx = "1.2.1"
 materialColorUtilities = "1.1.0"
+activity = "1.10.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +44,7 @@ exoplayer-ui = { group = "com.google.android.exoplayer", name = "exoplayer-ui", 
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtx" }
 material-color-utilities = { group = "com.google.android.material", name = "material-color-utilities", version.ref = "materialColorUtilities" }
 material-color-utilities-v120alpha01 = { module = "com.google.android.material:material-color-utilities", version.ref = "materialColorUtilitiesVersion" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

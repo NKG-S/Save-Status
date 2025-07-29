@@ -2,6 +2,7 @@
 package com.kezor.localsave.savestatus
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -24,6 +25,10 @@ import com.kezor.localsave.savestatus.databinding.FragmentSettingsBinding
 import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.UUID
+import kotlin.jvm.java
 
 class SettingsFragment : Fragment() {
 
@@ -88,28 +93,138 @@ class SettingsFragment : Fragment() {
         }
     }
 
+
     private fun setupStorageSettings() {
+        // Handle folder picker
         binding.itemChangeFolder.setOnClickListener {
             openFolderPicker()
         }
 
-        binding.switchAutoSave.isChecked = sharedPreferences.getBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)
+        // Set switch state from SharedPreferences
+        binding.switchAutoSaveAll.isChecked =
+            sharedPreferences.getBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)
 
-        binding.switchAutoSave.setOnCheckedChangeListener { _, isChecked ->
-            sharedPreferences.edit {
-                putBoolean(Constants.KEY_AUTO_SAVE_STATUSES, isChecked)
+        // Handle toggle changes
+        binding.switchAutoSaveAll.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                sharedPreferences.edit {
+                    putBoolean(Constants.KEY_AUTO_SAVE_STATUSES, true)
+                }
+                showSnackbar("Auto Save enabled")
+                performAutoSaveIfEnabled(requireContext())
+            } else {
+                showDisableAutoSaveConfirmation()
             }
-            showSnackbar(if (isChecked) "Auto Save enabled" else "Auto Save disabled")
         }
 
+        // Trigger auto-save when app starts
+        if (sharedPreferences.getBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)) {
+            performAutoSaveIfEnabled(requireContext())
+        }
+
+        // Navigate to auto-saved screen
         binding.itemGoToAutoSaved.setOnClickListener {
             navigateToSavedStatuses()
         }
 
+        // Clear manually
         binding.itemClearAutoSaved.setOnClickListener {
             showClearAllConfirmationDialog()
         }
     }
+
+    private fun showDisableAutoSaveConfirmation() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Disable Auto Save")
+            .setMessage("Do you want to clear all auto-saved media from the folder?")
+            .setPositiveButton("Clear") { dialog, _ ->
+                clearAutoSaveFolder()
+                sharedPreferences.edit {
+                    putBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)
+                }
+                showSnackbar("Auto Save disabled and folder cleared")
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                binding.switchAutoSaveAll.isChecked = true
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun showClearAllConfirmationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Clear All Saved Statuses")
+            .setMessage("This will permanently delete all saved statuses.")
+            .setPositiveButton("Delete") { dialog, _ ->
+                clearAutoSaveFolder()
+                showSnackbar("All saved statuses have been cleared")
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun clearAutoSaveFolder() {
+        val autoSaveDir = File(Environment.getExternalStorageDirectory(), Constants.KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH)
+        if (autoSaveDir.exists() && autoSaveDir.isDirectory) {
+            autoSaveDir.listFiles()?.forEach { file ->
+                try {
+                    file.delete()
+                } catch (e: Exception) {
+                    Log.e("AutoSave", "Failed to delete file: ${file.name}", e)
+                }
+            }
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    fun performAutoSaveIfEnabled(context: Context) {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        val isAutoSaveEnabled = prefs.getBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)
+
+        if (!isAutoSaveEnabled) return
+
+        val autoSaveDir = File(Environment.getExternalStorageDirectory(), Constants.KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH)
+        if (!autoSaveDir.exists()) autoSaveDir.mkdirs()
+
+        val sourceDirs = listOf(
+            File(Constants.WHATSAPP_STATUS_PATH),
+            File(Constants.WHATSAPP_BUSINESS_STATUS_PATH)
+        )
+
+        sourceDirs.forEach { sourceDir ->
+            if (sourceDir.exists() && sourceDir.isDirectory) {
+                sourceDir.listFiles()?.forEach { file ->
+                    if (file.isFile && (file.name.endsWith(".jpg") || file.name.endsWith(".mp4"))) {
+                        val uniqueName = generateUniqueFileName(file)
+                        val destFile = File(autoSaveDir, uniqueName)
+
+                        if (!destFile.exists()) {
+                            try {
+                                file.copyTo(destFile)
+                                Log.d("AutoSave", "Saved: ${destFile.name}")
+                            } catch (e: Exception) {
+                                Log.e("AutoSave", "Failed to copy: ${file.name}", e)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun generateUniqueFileName(file: File): String {
+        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val extension = file.extension
+        val uuid = UUID.randomUUID().toString().take(8)
+        return "${uuid}_${timestamp}.${extension}"
+    }
+
+
+
 
     @SuppressLint("SetTextI18n")
     private fun updateCurrentSavePathDisplay() {
@@ -235,7 +350,8 @@ class SettingsFragment : Fragment() {
 
     private fun navigateToSavedStatuses() {
         try {
-            showSnackbar("Opening saved statuses...")
+            val intent = Intent(requireContext(), SaveAll::class.java)
+            startActivity(intent)
         } catch (e: Exception) {
             Log.e(TAG, "Error navigating to saved statuses", e)
             showSnackbar("Unable to open saved statuses")
@@ -346,26 +462,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun showClearAllConfirmationDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Clear All Saved Statuses")
-            .setMessage("This will permanently delete all saved statuses.")
-            .setPositiveButton("Delete") { dialog, _ ->
-                clearAllSavedStatuses()
-                dialog.dismiss()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun clearAllSavedStatuses() {
-        try {
-            showSnackbar("All saved statuses have been cleared")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error clearing saved statuses", e)
-            showSnackbar("Failed to clear saved statuses")
-        }
-    }
 
     private fun showSnackbar(message: String) {
         view?.let {

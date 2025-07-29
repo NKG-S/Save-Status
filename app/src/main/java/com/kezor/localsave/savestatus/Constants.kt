@@ -9,7 +9,6 @@ object Constants {
     const val THEME_LIGHT = "light"
     const val THEME_DARK = "dark"
     const val THEME_SYSTEM_DEFAULT = "system_default"
-    const val KEY_AUTO_SAVE_STATUSES = "auto_save_statuses"
     const val KEY_SAVE_FOLDER_URI = "save_folder_uri"
     const val PREFS_NAME = "app_preferences"
     const val KEY_AUTO_SAVE_TOGGLE = "auto_save_toggle"
@@ -33,8 +32,12 @@ object Constants {
     // Default folder name for saving statuses within the app's external files directory
 
     // Preference keys
-    const val KEY_SAVE_FOLDER_PATH = "/Android/media/com.kezor"
-    const val APP_SAVE_SUBDIRECTORY_NAME = "SaveStatus"
+
+    const val KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH = "/Android/media/com.kezor/.Auto_Save_All_Status" //default save location of auto save all
+
+    const val KEY_SAVE_FOLDER_PATH = "/Android/media/com.kezor" //default save location
+    const val KEY_AUTO_SAVE_STATUSES = "auto_save_all_statuses"
+    const val APP_SAVE_SUBDIRECTORY_NAME = "SaveStatus" //default save sub folder name
     const val KEY_SAVE_OLDER_STATUS = "save_older_status"
 
 
