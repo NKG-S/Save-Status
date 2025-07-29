@@ -5,7 +5,6 @@ package com.kezor.localsave.savestatus
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -28,10 +27,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import com.google.android.material.tabs.TabLayout
 import com.kezor.localsave.savestatus.databinding.FragmentSavedBinding
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +41,7 @@ class SavedFragment : Fragment() {
     private lateinit var savedAdapter: StatusAdapter
     internal var currentMediaType: String = Constants.MEDIA_TYPE_IMAGE
     private var actionMode: ActionMode? = null
-    private val selectedItems = mutableSetOf<MediaItem>() // The set for tracking selected items
+    private val selectedItems = mutableSetOf<MediaItem>()
     private var currentMediaList: List<MediaItem> = emptyList()
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -56,10 +51,7 @@ class SavedFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSavedBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -102,10 +94,7 @@ class SavedFragment : Fragment() {
                     toggleSelection(mediaItem, position)
                 } else {
                     val action = SavedFragmentDirections.actionNavigationSavedToMediaViewerFragment(
-                        mediaItem,
-                        currentMediaList.toTypedArray(),
-                        position,
-                        true
+                        mediaItem, currentMediaList.toTypedArray(), position, true
                     )
                     findNavController().navigate(action)
                 }
@@ -119,11 +108,10 @@ class SavedFragment : Fragment() {
                         toggleSelection(mediaItem, position)
                     }
                 }
-                true // Consume the long click
+                true
             },
             onSelectionChanged = { mediaItem, isSelected ->
-                // This callback is less direct now, as toggleSelection handles the logic
-                // Kept for potential future complex interactions if needed.
+                // Kept for potential future use
             }
         )
 
@@ -143,11 +131,7 @@ class SavedFragment : Fragment() {
                 }
                 loadMedia(currentMediaType)
             }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-                // Not needed
-            }
-
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {
                 loadMedia(currentMediaType)
             }
@@ -196,8 +180,7 @@ class SavedFragment : Fragment() {
                 savedMediaList.sortByDescending { it.lastModified }
 
                 withContext(Dispatchers.Main) {
-                    binding.textViewEmptyState.visibility =
-                        if (savedMediaList.isEmpty()) View.VISIBLE else View.GONE
+                    binding.textViewEmptyState.visibility = if (savedMediaList.isEmpty()) View.VISIBLE else View.GONE
                     currentMediaList = savedMediaList
                     savedAdapter.submitList(savedMediaList)
                     binding.swipeRefreshLayout.isRefreshing = false
@@ -228,8 +211,7 @@ class SavedFragment : Fragment() {
                         file = file,
                         uri = file.absolutePath,
                         type = if (listOf("mp4", "avi", "mkv").contains(file.extension.lowercase()))
-                            Constants.MEDIA_TYPE_VIDEO
-                        else Constants.MEDIA_TYPE_IMAGE,
+                            Constants.MEDIA_TYPE_VIDEO else Constants.MEDIA_TYPE_IMAGE,
                         lastModified = file.lastModified()
                     )
                 )
@@ -402,16 +384,26 @@ class SavedFragment : Fragment() {
     }
 
     private fun toggleSelection(mediaItem: MediaItem, position: Int) {
-        mediaItem.isSelected = !mediaItem.isSelected // Toggle the isSelected state
-        if (mediaItem.isSelected) {
-            selectedItems.add(mediaItem)
-        } else {
-            selectedItems.remove(mediaItem)
+        val actualItemIndex = currentMediaList.indexOfFirst { it.uri == mediaItem.uri }
+        if (actualItemIndex != -1) {
+            val actualItem = currentMediaList[actualItemIndex]
+            actualItem.isSelected = !actualItem.isSelected
+
+            if (actualItem.isSelected) {
+                selectedItems.add(actualItem)
+            } else {
+                selectedItems.remove(actualItem)
+            }
+
+            val updatedList = currentMediaList.toMutableList()
+            updatedList[actualItemIndex] = actualItem.copy(isSelected = actualItem.isSelected)
+            currentMediaList = updatedList
+            savedAdapter.submitList(updatedList) {
+                savedAdapter.notifyItemChanged(position)
+            }
         }
-        savedAdapter.notifyItemChanged(position) // Crucial for visual update
 
         updateActionModeTitle()
-
         if (selectedItems.isEmpty()) {
             actionMode?.finish()
         }
@@ -454,9 +446,16 @@ class SavedFragment : Fragment() {
         override fun onDestroyActionMode(mode: ActionMode?) {
             actionMode = null
             savedAdapter.isSelectionMode = false
-            selectedItems.forEach { it.isSelected = false } // Reset isSelected flag for all
-            selectedItems.clear() // Clear the tracking set
-            savedAdapter.notifyDataSetChanged() // Refresh RecyclerView to clear selections visually
+
+            val clearedList = currentMediaList.map { item ->
+                item.copy(isSelected = false)
+            }
+            selectedItems.clear()
+            currentMediaList = clearedList
+            savedAdapter.submitList(clearedList) {
+                savedAdapter.notifyDataSetChanged()
+            }
+
             binding.appBarLayout.visibility = View.VISIBLE
             binding.tabLayout.visibility = View.VISIBLE
         }
@@ -527,9 +526,7 @@ class SavedFragment : Fragment() {
                             if (!deleted) {
                                 try {
                                     val deletedRows = requireContext().contentResolver.delete(
-                                        Uri.parse(mediaItem.uri),
-                                        null,
-                                        null
+                                        Uri.parse(mediaItem.uri), null, null
                                     )
                                     deleted = deletedRows > 0
                                 } catch (e: Exception) {
@@ -564,7 +561,6 @@ class SavedFragment : Fragment() {
                             failedItems.add(mediaItem.uri)
                             Log.w("SavedFragment", "Failed to delete: ${mediaItem.uri}")
                         }
-
                     } catch (e: Exception) {
                         Log.e("SavedFragment", "Exception deleting item ${mediaItem.uri}: ${e.message}", e)
                         failedItems.add(mediaItem.uri)
