@@ -15,7 +15,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import com.kezor.localsave.savestatus.StatusFragmentDirections // Correct import for Safe Args directions
 
 class StatusFragment : Fragment() {
 
@@ -140,7 +139,7 @@ class StatusFragment : Fragment() {
             mediaList.addAll(getMediaFiles(whatsappBusinessStatusDir))
 
             // Remove duplicates if any (based on absolute path)
-            val distinctMediaList = mediaList.distinctBy { it.file.absolutePath }.toMutableList()
+            val distinctMediaList = mediaList.distinctBy { it.file?.absolutePath }.toMutableList()
 
             Log.d("StatusFragment", "Total distinct media items found: ${distinctMediaList.size}")
 

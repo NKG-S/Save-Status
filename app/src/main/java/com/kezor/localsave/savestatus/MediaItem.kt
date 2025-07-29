@@ -6,7 +6,7 @@ import java.io.File
 
 @Parcelize
 data class MediaItem(
-    val file: File,
+    val file: File?,
     val uri: String,
     val type: String, // "image" or "video"
     val lastModified: Long,
