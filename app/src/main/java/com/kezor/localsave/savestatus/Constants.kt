@@ -5,14 +5,13 @@ import java.io.File
 
 object Constants {
 
-    // Default save folder for the app
-    // This will be created within the app-specific directory or a user-selected directory
-    const val DEFAULT_SAVE_FOLDER_NAME = "/Android/media/com.kezor/SaveStatus"
-    val DEFAULT_AUTO_SAVE_SUBFOLDER_NAME = "AutoSaved"
-
-    // Preferences keys
+    const val KEY_THEME_MODE = "theme_mode"
+    const val THEME_LIGHT = "light"
+    const val THEME_DARK = "dark"
+    const val THEME_SYSTEM_DEFAULT = "system_default"
+    const val KEY_AUTO_SAVE_STATUSES = "auto_save_statuses"
+    const val KEY_SAVE_FOLDER_URI = "save_folder_uri"
     const val PREFS_NAME = "app_preferences"
-    const val KEY_THEME_MODE = "theme_mode" // Consolidated theme preference key
     const val KEY_AUTO_SAVE_TOGGLE = "auto_save_toggle"
     const val KEY_SAVE_OLDER_TOGGLE = "save_older_toggle"
 
@@ -26,9 +25,6 @@ object Constants {
     const val MEDIA_TYPE_VIDEO = "video"
 
     // Theme values (String representation for preferences)
-    const val THEME_LIGHT = "light"
-    const val THEME_DARK = "dark"
-    const val THEME_SYSTEM_DEFAULT = "system_default" // Represents following system default
 
     // Default WhatsApp status paths
     val WHATSAPP_STATUS_PATH = "${Environment.getExternalStorageDirectory()}/Android/media/com.whatsapp/WhatsApp/Media/.Statuses"
@@ -38,10 +34,8 @@ object Constants {
 
     // Preference keys
     const val KEY_SAVE_FOLDER_PATH = "/Android/media/com.kezor"
-    const val APP_SAVE_SUBDIRECTORY_NAME = "com.kezor"
-    const val KEY_AUTO_SAVE_STATUSES = "auto_save_statuses"
+    const val APP_SAVE_SUBDIRECTORY_NAME = "SaveStatus"
     const val KEY_SAVE_OLDER_STATUS = "save_older_status"
-    const val KEY_SAVE_FOLDER_URI = "www.youtube.com"
 
 
     const val THEME_SELECTION = "theme_selection"

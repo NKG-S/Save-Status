@@ -293,6 +293,19 @@
     <string name="pref_key_go_to_saved">go_to_auto_saved</string>
     <string name="pref_key_clear_saved">clear_all_auto_saved</string>
     <string name="pref_key_change_folder">change_save_folder</string>
+    <string name="Developer_Information">Developer Information</string>
+    <string name="Developer_message">"Developer: Kezor Technologies\nEmail: developer@kezor.com\nWebsite: https://kezor.com\n\nThank you for using our app!\n            "</string>
+    <string name="contact">Contact</string>
+    <string name="close">Close</string>
+    <string name="Contact_devoloper">nethminkavindu@gmail.com</string>
+    <string name="Privacy_policy_url">https://your-website.com/privacy-policy</string>
+    <string name="Play_store_link">Check out %1$s - a great app for saving WhatsApp statuses!\n Download it from: https://play.google.com/store/apps/details?id=%2$s</string>
+    <string name="unable_to_share_app">Unable to share app</string>
+    <string name="Clear_saved_statuses_failed">Failed to clear saved statuses</string>
+    <string name="Clear_saved_statuses_success">All saved statuses have been cleared</string>
+    <string name="Clear_all_saved_statuses_dialog_box_title">Clear All Saved Statuses</string>
+    <string name="Clear_all_saved_statuses_dialog_box_description">This will permanently delete all saved statuses.</string>
+    <string name="cd_cansel_button">Cancel</string>
 
     <!-- Plural Strings -->
     <plurals name="status_count">

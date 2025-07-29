@@ -2,12 +2,16 @@
 package com.kezor.localsave.savestatus
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.provider.MediaStore
 import android.util.Log
 import android.view.GestureDetector
 import android.view.LayoutInflater
@@ -21,6 +25,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.content.FileProvider
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -38,9 +43,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 class MediaViewerFragment : Fragment() {
 
@@ -61,26 +68,20 @@ class MediaViewerFragment : Fragment() {
         videoBinding?.actionBarContainer?.visibility = View.VISIBLE
     }
     private lateinit var gestureDetector: GestureDetector
-
-    // Cache the isFromSavedSection value to avoid multiple bundle lookups
     private var isFromSavedSection: Boolean = false
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mediaList = args.mediaList
         currentIndex = args.currentIndex
+        isFromSavedSection = arguments?.getBoolean("isFromSavedSection", false) == true
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
 
-        // Determine if this media is being viewed from the saved section
-        // Check multiple sources to ensure we get the correct value
-        isFromSavedSection = arguments?.getBoolean("isFromSavedSection", false) ?: false
-
-        // Additional check: if the media path contains the saved folder path, assume it's from saved section
         if (!isFromSavedSection) {
             val savedFolderPath = getSavedFolderPath()
             isFromSavedSection = mediaList.any { it.file.absolutePath.startsWith(savedFolderPath) }
         }
-
-        Log.d("MediaViewer", "isFromSavedSection: $isFromSavedSection")
 
         gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
             private val SWIPE_THRESHOLD = 100
@@ -119,6 +120,44 @@ class MediaViewerFragment : Fragment() {
         hideSystemUI()
         updateMediaView(mediaList[currentIndex])
         view.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
+
+        // Check if media is already saved when opening
+        checkIfMediaAlreadySaved()
+    }
+
+    @SuppressLint("UseKtx")
+    private fun checkIfMediaAlreadySaved() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val mediaItem = mediaList[currentIndex]
+                val isSaved = if (isFromSavedSection) {
+                    true
+                } else {
+                    val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                    val customUri = prefs.getString(Constants.KEY_SAVE_FOLDER_URI, null)
+
+                    if (!customUri.isNullOrEmpty()) {
+                        val folderDoc = DocumentFile.fromTreeUri(requireContext(), Uri.parse(customUri))
+                        folderDoc?.let { isMediaAlreadySavedInSAF(it, mediaItem) } ?: false
+                    } else {
+                        isMediaAlreadySaved(mediaItem)
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    if (isSaved) {
+                        hideSaveButton()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("MediaViewer", "Error checking if media is saved", e)
+            }
+        }
+    }
+
+    private fun hideSaveButton() {
+        videoBinding?.btnSave?.visibility = View.GONE
+        imageBinding?.btnSave?.visibility = View.GONE
     }
 
     private fun updateMediaView(mediaItem: MediaItem) {
@@ -146,32 +185,10 @@ class MediaViewerFragment : Fragment() {
         }
     }
 
-    private fun showNextMedia() {
-        if (currentIndex < mediaList.size - 1) {
-            currentIndex++
-            updateMediaView(mediaList[currentIndex])
-        } else {
-            Toast.makeText(requireContext(), "No more media to the right", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun showPreviousMedia() {
-        if (currentIndex > 0) {
-            currentIndex--
-            updateMediaView(mediaList[currentIndex])
-        } else {
-            Toast.makeText(requireContext(), "No more media to the left", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     private fun setupVideoUI(mediaItem: MediaItem) {
         videoBinding?.apply {
             topAppBar.setNavigationOnClickListener { findNavController().navigateUp() }
-
-            // Determine save button visibility
             configureSaveButtonVisibility(btnSave, mediaItem)
-
-            // Share button is always visible
             btnShare.visibility = View.VISIBLE
             btnSave.setOnClickListener { saveMedia(mediaList[currentIndex]) }
             btnShare.setOnClickListener { shareMedia(mediaList[currentIndex]) }
@@ -198,55 +215,176 @@ class MediaViewerFragment : Fragment() {
     private fun setupImageUI(mediaItem: MediaItem) {
         imageBinding?.apply {
             topAppBar.setNavigationOnClickListener { findNavController().navigateUp() }
-
-            // Determine save button visibility
             configureSaveButtonVisibility(btnSave, mediaItem)
-
-            // Share button is always visible
             btnShare.visibility = View.VISIBLE
             btnSave.setOnClickListener { saveMedia(mediaList[currentIndex]) }
             btnShare.setOnClickListener { shareMedia(mediaList[currentIndex]) }
         }
     }
 
-    /**
-     * Configures the save button visibility based on multiple criteria:
-     * 1. If viewing from saved section - always hide
-     * 2. If media file is already in saved folder - hide
-     * 3. If media is already saved (by name check) - hide
-     * 4. Otherwise - show
-     */
     private fun configureSaveButtonVisibility(saveButton: View, mediaItem: MediaItem) {
         when {
-            // Priority 1: If viewing from saved section, always hide save button
             isFromSavedSection -> {
                 saveButton.visibility = View.GONE
-                Log.d("MediaViewer", "Save button hidden: viewing from saved section")
             }
-
-            // Priority 2: If the media file is already in the saved folder, hide save button
             isMediaInSavedFolder(mediaItem) -> {
                 saveButton.visibility = View.GONE
-                Log.d("MediaViewer", "Save button hidden: media already in saved folder")
             }
-
-            // Priority 3: If media is already saved (by name matching), hide save button
-            isMediaAlreadySaved(mediaItem) -> {
-                saveButton.visibility = View.GONE
-                Log.d("MediaViewer", "Save button hidden: media already saved")
-            }
-
-            // Default: Show save button
             else -> {
                 saveButton.visibility = View.VISIBLE
-                Log.d("MediaViewer", "Save button visible: media can be saved")
             }
         }
     }
 
-    /**
-     * Checks if the media file is already located in the saved folder
-     */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private suspend fun saveMediaUsingSAF(mediaItem: MediaItem, folderUri: Uri, newFileName: String) {
+        try {
+            val resolver = requireContext().contentResolver
+            val folderDoc = DocumentFile.fromTreeUri(requireContext(), folderUri)
+
+            if (folderDoc == null || !folderDoc.exists()) {
+                withContext(Dispatchers.Main) {
+                    Utils.showToast(requireContext(), "Cannot access save location")
+                }
+                return
+            }
+
+            // Check if file with same content already exists
+            if (isMediaAlreadySavedInSAF(folderDoc, mediaItem)) {
+                withContext(Dispatchers.Main) {
+                    Utils.showToast(requireContext(), "This media is already saved")
+                    hideSaveButton()
+                }
+                return
+            }
+
+            // Create the new file
+            val mimeType = when (mediaItem.type) {
+                Constants.MEDIA_TYPE_IMAGE -> "image/${mediaItem.file.extension.lowercase()}"
+                Constants.MEDIA_TYPE_VIDEO -> "video/${mediaItem.file.extension.lowercase()}"
+                else -> "*/*"
+            }
+
+            val newFileDoc = folderDoc.createFile(mimeType, newFileName)
+                ?: throw Exception("Failed to create file in selected location")
+
+            // Copy content
+            resolver.openInputStream(Uri.fromFile(mediaItem.file))?.use { inputStream ->
+                resolver.openOutputStream(newFileDoc.uri)?.use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                Utils.showToast(requireContext(), "Media saved successfully")
+                Utils.scanMediaFile(requireContext(), newFileDoc.uri.toString())
+                hideSaveButton()
+            }
+        } catch (e: Exception) {
+            throw Exception("SAF save failed: ${e.message}")
+        }
+    }
+
+    @SuppressLint("ObsoleteSdkInt")
+    private suspend fun saveMediaUsingFile(mediaItem: MediaItem, newFileName: String) {
+        try {
+            val saveDir = File(getSavedFolderPath())
+            if (!saveDir.exists()) saveDir.mkdirs()
+
+            // Check if file with same content already exists
+            if (isMediaAlreadySaved(mediaItem, saveDir)) {
+                withContext(Dispatchers.Main) {
+                    Utils.showToast(requireContext(), "This media is already saved")
+                    hideSaveButton()
+                }
+                return
+            }
+
+            val destFile = File(saveDir, newFileName)
+
+            val success = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                saveMediaUsingMediaStore(mediaItem, newFileName)
+            } else {
+                Utils.copyFile(mediaItem.file, destFile)
+            }
+
+            withContext(Dispatchers.Main) {
+                if (success) {
+                    Utils.showToast(requireContext(), "Media saved successfully")
+                    Utils.scanMediaFile(requireContext(), destFile.absolutePath)
+                    hideSaveButton()
+                } else {
+                    Utils.showToast(requireContext(), "Failed to save media")
+                }
+            }
+        } catch (e: Exception) {
+            throw Exception("File save failed: ${e.message}")
+        }
+    }
+
+
+    private fun showNextMedia() {
+        if (currentIndex < mediaList.size - 1) {
+            currentIndex++
+            updateMediaView(mediaList[currentIndex])
+        } else {
+            Toast.makeText(requireContext(), "No more media to the right", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showPreviousMedia() {
+        if (currentIndex > 0) {
+            currentIndex--
+            updateMediaView(mediaList[currentIndex])
+        } else {
+            Toast.makeText(requireContext(), "No more media to the left", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun isMediaInSavedFolder(mediaItem: MediaItem): Boolean {
         val savedFolderPath = getSavedFolderPath()
         val mediaPath = mediaItem.file.absolutePath
@@ -275,7 +413,6 @@ class MediaViewerFragment : Fragment() {
                 exoPlayer.addListener(object : Player.Listener {
                     override fun onPlayerError(error: PlaybackException) {
                         super.onPlayerError(error)
-                        Log.e("MediaViewer", "Player error: ${error.message}")
                         requireActivity().runOnUiThread {
                             Toast.makeText(requireContext(), "Failed to play video: ${error.message}", Toast.LENGTH_LONG).show()
                         }
@@ -305,9 +442,111 @@ class MediaViewerFragment : Fragment() {
                 updatePlayPauseButtonVisibility(exoPlayer.playWhenReady, exoPlayer.playbackState)
             }
         } catch (e: Exception) {
-            Log.e("MediaViewer", "Player initialization failed", e)
             Toast.makeText(requireContext(), "Video player initialization failed: ${e.message}", Toast.LENGTH_LONG).show()
         }
+    }
+
+    @SuppressLint("UseKtx")
+    private fun saveMedia(mediaItem: MediaItem) {
+        if (isFromSavedSection) {
+            Toast.makeText(requireContext(), "Media is already saved", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                val customUri = prefs.getString(Constants.KEY_SAVE_FOLDER_URI, null)
+
+                // Generate unique ID for the file
+                val fileId = UUID.randomUUID().toString().substring(0, 8)
+                val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+                val extension = mediaItem.file.extension
+                val newFileName = "${fileId}_${mediaItem.file.nameWithoutExtension}_$timestamp.$extension"
+
+                if (!customUri.isNullOrEmpty()) {
+                    // Handle SAF URI
+                    saveMediaUsingSAF(mediaItem, Uri.parse(customUri), newFileName)
+                } else {
+                    // Handle regular file path
+                    saveMediaUsingFile(mediaItem, newFileName)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Utils.showToast(requireContext(), "Save failed: ${e.message}")
+                    Log.e("MediaViewFragment", "Save failed", e)
+                }
+            }
+        }
+    }
+
+    @SuppressLint("Recycle")
+    fun saveMediaUsingMediaStore(mediaItem: MediaItem, fileName: String): Boolean {
+        return try {
+            val resolver = requireContext().contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, when (mediaItem.type) {
+                    Constants.MEDIA_TYPE_IMAGE -> "image/${mediaItem.file.extension.lowercase()}"
+                    Constants.MEDIA_TYPE_VIDEO -> "video/${mediaItem.file.extension.lowercase()}"
+                    else -> "*/*"
+                })
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS +
+                        File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME)
+            }
+
+            val uri = resolver.insert(
+                when (mediaItem.type) {
+                    Constants.MEDIA_TYPE_IMAGE -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                    Constants.MEDIA_TYPE_VIDEO -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                    else -> MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                },
+                contentValues
+            ) ?: return false
+
+            resolver.openOutputStream(uri)?.use { outputStream ->
+                FileInputStream(mediaItem.file).use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun isMediaAlreadySavedInSAF(folderDoc: DocumentFile, mediaItem: MediaItem): Boolean {
+        // Compare file content hashes to detect duplicates
+        val sourceHash = Utils.calculateFileHash(mediaItem.file)
+
+        return folderDoc.listFiles().any { file ->
+            try {
+                val tempFile = File.createTempFile("temp", null, requireContext().cacheDir)
+                requireContext().contentResolver.openInputStream(file.uri)?.use { input ->
+                    tempFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                val targetHash = Utils.calculateFileHash(tempFile)
+                tempFile.delete()
+                sourceHash == targetHash
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    private fun isMediaAlreadySaved(mediaItem: MediaItem, dir: File? = null): Boolean {
+        val saveDir = dir ?: File(getSavedFolderPath())
+        if (!saveDir.exists()) return false
+
+        // Compare file content hashes to detect duplicates
+        val sourceHash = Utils.calculateFileHash(mediaItem.file)
+
+        return saveDir.listFiles()?.any { file ->
+            val targetHash = Utils.calculateFileHash(file)
+            sourceHash == targetHash
+        } == true
     }
 
     private fun setupControlButtons(exoPlayer: ExoPlayer) {
@@ -361,78 +600,6 @@ class MediaViewerFragment : Fragment() {
         controlsHandler.removeCallbacks(hideControlsRunnable)
     }
 
-    /**
-     * Saves the given media item to a designated folder with a unique name.
-     */
-    private fun saveMedia(mediaItem: MediaItem) {
-        // Extra safety check - don't save if from saved section
-        if (isFromSavedSection) {
-            Toast.makeText(requireContext(), "Media is already saved", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                // Ensure the correct save directory is used based on Constants.APP_SAVE_SUBDIRECTORY_NAME
-                val saveDir = File(getSavedFolderPath())
-                if (!saveDir.exists()) saveDir.mkdirs()
-
-                if (isMediaAlreadySaved(mediaItem, saveDir)) {
-                    withContext(Dispatchers.Main) {
-                        Utils.showToast(requireContext(), getString(R.string.status_already_saved))
-                        videoBinding?.btnSave?.visibility = View.GONE
-                        imageBinding?.btnSave?.visibility = View.GONE
-                    }
-                    return@launch
-                }
-
-                val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-                val extension = mediaItem.file.extension
-                val newFileName = "${mediaItem.file.nameWithoutExtension}_$timestamp.$extension"
-                val destFile = File(saveDir, newFileName)
-
-                val success = Utils.copyFile(mediaItem.file, destFile)
-
-                withContext(Dispatchers.Main) {
-                    if (success) {
-                        Utils.showToast(requireContext(), getString(R.string.status_saved_successfully))
-                        Utils.scanMediaFile(requireContext(), destFile.absolutePath)
-                        // After saving, hide the save button as it's now saved
-                        videoBinding?.btnSave?.visibility = View.GONE
-                        imageBinding?.btnSave?.visibility = View.GONE
-                    } else {
-                        Utils.showToast(requireContext(), getString(R.string.status_save_failed))
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Utils.showToast(requireContext(), "Save failed: ${e.message}")
-                }
-                Log.e("MediaViewer", "Save error: ${e.message}", e)
-            }
-        }
-    }
-
-    /**
-     * Checks if a media item (by its original name) is already saved.
-     * This is a simple check; a more robust check might involve content hashing or a database.
-     */
-    private fun isMediaAlreadySaved(mediaItem: MediaItem, dir: File? = null): Boolean {
-        // Use the consistent getSavedFolderPath() here too
-        val saveDir = dir ?: File(getSavedFolderPath())
-        if (!saveDir.exists()) return false
-
-        val baseId = mediaItem.file.nameWithoutExtension
-        val extension = mediaItem.file.extension.lowercase()
-
-        return saveDir.listFiles()?.any { file ->
-            // Check if the file name (before the timestamp part) matches the original
-            // and the extension matches.
-            file.nameWithoutExtension.substringBeforeLast("_", file.nameWithoutExtension) == baseId &&
-                    file.extension.equals(extension, ignoreCase = true)
-        } == true
-    }
-
     private fun shareMedia(mediaItem: MediaItem) {
         lifecycleScope.launch(Dispatchers.IO) {
             var tempFile: File? = null
@@ -467,54 +634,42 @@ class MediaViewerFragment : Fragment() {
                     }
 
                     val chooser = Intent.createChooser(shareIntent, getString(R.string.saved_share_button))
-
-                    // Grant temporary read permission to all resolved activities
-                    val resInfoList = requireContext().packageManager.queryIntentActivities(chooser, 0)
-                    for (resolveInfo in resInfoList) {
-                        val packageName = resolveInfo.activityInfo.packageName
-                        requireContext().grantUriPermission(packageName, fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    }
-
                     startActivity(chooser)
 
-                    // Schedule deletion of temp file after a delay (ensure share dialog launched)
                     controlsHandler.postDelayed({
-                        tempFile?.delete()
-                        Log.d("MediaViewer", "Temporary share file deleted: ${tempFile?.name}")
-                    }, 10000) // 10 seconds delay to be safe
+                        tempFile.delete()
+                    }, 10000)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(requireContext(), "Sharing failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
-                Log.e("MediaViewer", "Share error: ${e.message}", e)
             }
         }
     }
 
-    /**
-     * Retrieves the path to the folder where statuses are saved.
-     * This function should be consistent across MediaViewerFragment and SavedFragment.
-     */
+    @SuppressLint("UseKtx")
     private fun getSavedFolderPath(): String {
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val customPath = prefs.getString(Constants.KEY_SAVE_FOLDER_PATH, null)
+        val customUri = prefs.getString(Constants.KEY_SAVE_FOLDER_URI, null)
 
-        return if (!customPath.isNullOrEmpty()) {
-            customPath
+        return if (!customUri.isNullOrEmpty()) {
+            // For SAF URI, we need to get the actual path
+            try {
+                val uri = Uri.parse(customUri)
+                val docFile = DocumentFile.fromTreeUri(requireContext(), uri)
+                docFile?.uri?.path ?: (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME)
+            } catch (e: Exception) {
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    .absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME
+            }
         } else {
-            // Default to the app's primary external media directory first
-            requireContext().externalMediaDirs.firstOrNull()?.absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME
-                ?: // Fallback to primary external files directory if externalMediaDirs is null/empty
-                (requireContext().getExternalFilesDir(null)?.absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME)
-                ?: // Last resort: app's internal files directory (less ideal for user-saved media)
-                (requireContext().filesDir.absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME)
+            // Default path
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                .absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME
         }
     }
 
-    /**
-     * Hides system UI (status bar and navigation bar) for immersive experience.
-     */
     private fun hideSystemUI() {
         activity?.window?.let { window ->
             WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -525,9 +680,6 @@ class MediaViewerFragment : Fragment() {
         }
     }
 
-    /**
-     * Shows system UI (status bar and navigation bar).
-     */
     private fun showSystemUI() {
         activity?.window?.let { window ->
             WindowCompat.setDecorFitsSystemWindows(window, true)
@@ -537,7 +689,6 @@ class MediaViewerFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        // Initialize player here if it's a video and not already initialized
         if (isVideo && player == null) {
             initializePlayer(mediaList[currentIndex])
         }
@@ -546,36 +697,30 @@ class MediaViewerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         hideSystemUI()
-        // Ensure player resumes playback if it was paused in onPause
-        player?.playWhenReady = playWhenReady // Use the saved playWhenReady state
+        player?.playWhenReady = playWhenReady
     }
 
     override fun onPause() {
         super.onPause()
-        // Pause playback when the fragment is no longer in the foreground
-        player?.playWhenReady = false // Set playWhenReady to false to pause
-        player?.pause() // Explicitly pause the player
+        player?.playWhenReady = false
+        player?.pause()
     }
 
     override fun onStop() {
         super.onStop()
-        // Release the player when the fragment is no longer visible
         releasePlayer()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        showSystemUI() // Restore system UI when fragment is destroyed
-        // Ensure player is released and bindings are nullified
+        showSystemUI()
         if (isVideo) {
-            releasePlayer() // Ensure player is released one last time
+            releasePlayer()
             videoBinding?.videoPlayerView?.player = null
             videoBinding = null
         } else {
             imageBinding = null
         }
-        // Ensure any pending temporary share files are deleted on destroy
-        // This is a safety net for cases where the delayed deletion might not have run.
         requireContext().cacheDir.listFiles { file ->
             file.name.startsWith("share_temp_")
         }?.forEach { it.delete() }

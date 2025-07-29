@@ -15,11 +15,29 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 object Utils {
+
+    fun calculateFileHash(file: File): String {
+        return try {
+            val md = MessageDigest.getInstance("MD5")
+            file.inputStream().use { input ->
+                val buffer = ByteArray(8192)
+                var bytesRead: Int
+                while (input.read(buffer).also { bytesRead = it } != -1) {
+                    md.update(buffer, 0, bytesRead)
+                }
+            }
+            md.digest().joinToString("") { "%02x".format(it) }
+        } catch (e: Exception) {
+            // Fallback to file name and size if hash fails
+            "${file.name}_${file.length()}"
+        }
+    }
 
     fun performHapticFeedback(view: View, type: Int) {
         view.performHapticFeedback(type)

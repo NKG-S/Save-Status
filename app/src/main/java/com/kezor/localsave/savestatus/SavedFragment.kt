@@ -4,17 +4,23 @@ package com.kezor.localsave.savestatus
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.os.Parcelable
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.FileProvider
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -31,12 +37,17 @@ class SavedFragment : Fragment() {
 
     private var _binding: FragmentSavedBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var savedAdapter: StatusAdapter
-    private var currentMediaType: String = Constants.MEDIA_TYPE_IMAGE
+    var currentMediaType: String = Constants.MEDIA_TYPE_IMAGE
     private var actionMode: ActionMode? = null
     private val selectedItems = mutableSetOf<MediaItem>()
     private var currentMediaList: List<MediaItem> = emptyList()
+    private lateinit var sharedPreferences: SharedPreferences
+    private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == Constants.KEY_SAVE_FOLDER_URI) {
+            loadMedia(currentMediaType)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,44 +59,49 @@ class SavedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         setupRecyclerView()
         setupTabLayout()
         setupSwipeRefresh()
         loadMedia(currentMediaType)
     }
 
+    override fun onResume() {
+        super.onResume()
+        sharedPreferences.registerOnSharedPreferenceChangeListener(prefListener)
+        // Refresh data when fragment resumes in case location changed while inactive
+        loadMedia(currentMediaType)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(prefListener)
+    }
+
     private fun setupRecyclerView() {
         savedAdapter = StatusAdapter(
             onItemClick = { mediaItem, position ->
                 if (actionMode != null) {
-                    // When an item is clicked in selection mode, we toggle its state.
-                    // The adapter will then call onSelectionChanged.
                     toggleSelection(mediaItem, position)
                 } else {
-                    // Otherwise, we navigate to the viewer.
                     val action = SavedFragmentDirections.actionNavigationSavedToMediaViewerFragment(
                         mediaItem,
                         currentMediaList.toTypedArray(),
                         position,
-                        true // isFromSavedSection
+                        true
                     )
                     findNavController().navigate(action)
                 }
             },
             onItemLongClick = { mediaItem, view ->
-                // Get the adapter position from the long-pressed view.
                 val position = binding.recyclerViewSaved.getChildAdapterPosition(view)
-
                 if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
                     if (actionMode == null) {
                         startSelectionMode(mediaItem, position)
                     }
                 }
             },
-            // CORRECTED: The required onSelectionChanged parameter is now included.
             onSelectionChanged = { mediaItem, isSelected ->
-                // This callback syncs the fragment's list of selected items
-                // with the adapter's state.
                 if (isSelected) {
                     selectedItems.add(mediaItem)
                 } else {
@@ -93,7 +109,6 @@ class SavedFragment : Fragment() {
                 }
                 updateActionModeTitle()
 
-                // If no items remain selected, exit action mode.
                 if (selectedItems.isEmpty() && actionMode != null) {
                     actionMode?.finish()
                 }
@@ -118,7 +133,6 @@ class SavedFragment : Fragment() {
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
-
             override fun onTabReselected(tab: TabLayout.Tab?) {
                 loadMedia(currentMediaType)
             }
@@ -131,62 +145,106 @@ class SavedFragment : Fragment() {
         }
     }
 
-    private fun loadMedia(mediaType: String) {
+    fun loadMedia(mediaType: String) {
         binding.swipeRefreshLayout.isRefreshing = true
         binding.textViewEmptyState.visibility = View.GONE
-        // Ensure any existing action mode is finished before loading new data
         actionMode?.finish()
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val savedMediaList = mutableListOf<MediaItem>()
-            val saveFolderPath = getSavedFolderPath()
-            val saveDir = File(saveFolderPath)
+            try {
+                val savedMediaList = mutableListOf<MediaItem>()
+                val saveFolderPath = getSavedFolderPath()
+                val saveDir = File(saveFolderPath)
 
-            if (saveDir.exists() && saveDir.isDirectory) {
-                val files = saveDir.listFiles()
-                files?.filter { file ->
-                    file.isFile && !file.name.startsWith(".") &&
-                            ((mediaType == Constants.MEDIA_TYPE_IMAGE &&
-                                    listOf("jpg", "jpeg", "png").contains(file.extension.lowercase())) ||
-                                    (mediaType == Constants.MEDIA_TYPE_VIDEO &&
-                                            listOf("mp4", "avi", "mkv").contains(file.extension.lowercase())))
-                }?.forEach { file ->
-                    savedMediaList.add(
-                        MediaItem(
-                            file = file,
-                            uri = file.absolutePath,
-                            type = if (listOf("mp4", "avi", "mkv").contains(file.extension.lowercase()))
-                                Constants.MEDIA_TYPE_VIDEO
-                            else Constants.MEDIA_TYPE_IMAGE,
-                            lastModified = file.lastModified()
+                if (saveDir.exists() && saveDir.isDirectory) {
+                    val files = saveDir.listFiles()
+                    files?.filter { file ->
+                        file.isFile && !file.name.startsWith(".") &&
+                                ((mediaType == Constants.MEDIA_TYPE_IMAGE &&
+                                        listOf("jpg", "jpeg", "png").contains(file.extension.lowercase())) ||
+                                        (mediaType == Constants.MEDIA_TYPE_VIDEO &&
+                                                listOf("mp4", "avi", "mkv").contains(file.extension.lowercase())))
+                    }?.forEach { file ->
+                        savedMediaList.add(
+                            MediaItem(
+                                file = file,
+                                uri = file.absolutePath,
+                                type = if (listOf("mp4", "avi", "mkv").contains(file.extension.lowercase()))
+                                    Constants.MEDIA_TYPE_VIDEO
+                                else Constants.MEDIA_TYPE_IMAGE,
+                                lastModified = file.lastModified()
+                            )
                         )
-                    )
+                    }
                 }
-            }
 
-            savedMediaList.sortByDescending { it.lastModified }
+                savedMediaList.sortByDescending { it.lastModified }
 
-            withContext(Dispatchers.Main) {
-                binding.textViewEmptyState.visibility =
-                    if (savedMediaList.isEmpty()) View.VISIBLE else View.GONE
-                currentMediaList = savedMediaList
-                savedAdapter.submitList(savedMediaList)
-                binding.swipeRefreshLayout.isRefreshing = false
+                withContext(Dispatchers.Main) {
+                    binding.textViewEmptyState.visibility =
+                        if (savedMediaList.isEmpty()) View.VISIBLE else View.GONE
+                    currentMediaList = savedMediaList
+                    savedAdapter.submitList(savedMediaList)
+                    binding.swipeRefreshLayout.isRefreshing = false
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    binding.textViewEmptyState.visibility = View.VISIBLE
+                    binding.swipeRefreshLayout.isRefreshing = false
+                    Toast.makeText(requireContext(), "Error loading media: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
     private fun getSavedFolderPath(): String {
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val customPath = prefs.getString(Constants.KEY_SAVE_FOLDER_PATH, null)
+        val customUri = prefs.getString(Constants.KEY_SAVE_FOLDER_URI, null)
 
-        return if (!customPath.isNullOrEmpty()) {
-            customPath
+        return if (!customUri.isNullOrEmpty()) {
+            try {
+                val uri = Uri.parse(customUri)
+                val docFile = DocumentFile.fromTreeUri(requireContext(), uri)
+                docFile?.let {
+                    // For SAF URI, we need to get the actual path
+                    if (docFile.isDirectory) {
+                        // Try to get the actual path for SAF URI
+                        val path = getPathFromSAFUri(uri)
+                        path ?: Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                            .absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME
+                    } else {
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                            .absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME
+                    }
+                } ?: Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    .absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME
+            } catch (e: Exception) {
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    .absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME
+            }
         } else {
-            // Default to the app's primary external media directory
-            requireContext().externalMediaDirs.firstOrNull()?.absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME
-                ?: (requireContext().getExternalFilesDir(null)?.absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME)
-                ?: (requireContext().filesDir.absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME)
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                .absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME
+        }
+    }
+
+    @SuppressLint("Range")
+    private fun getPathFromSAFUri(uri: Uri): String? {
+        return try {
+            val cursor = requireContext().contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val displayName = it.getString(it.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME))
+                    val path = it.getString(it.getColumnIndex(MediaStore.MediaColumns.DATA))
+                    path ?: displayName?.let { name ->
+                        File(Environment.getExternalStorageDirectory(), name).absolutePath
+                    }
+                } else {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 
@@ -245,10 +303,8 @@ class SavedFragment : Fragment() {
         override fun onDestroyActionMode(mode: ActionMode?) {
             actionMode = null
             savedAdapter.isSelectionMode = false
-            // Reset the isSelected flag for all items to false
             selectedItems.forEach { it.isSelected = false }
             selectedItems.clear()
-            // Notify the adapter to remove the selection visuals from all items
             savedAdapter.notifyDataSetChanged()
             binding.appBarLayout.visibility = View.VISIBLE
         }
@@ -275,18 +331,17 @@ class SavedFragment : Fragment() {
 
     @SuppressLint("StringFormatInvalid")
     private fun deleteSelectedItems() {
-        val itemsToDelete = selectedItems.toList() // Create a copy to avoid modification issues
-        actionMode?.finish() // Finish action mode immediately
+        val itemsToDelete = selectedItems.toList()
+        actionMode?.finish()
 
         lifecycleScope.launch {
             var deletedCount = 0
             withContext(Dispatchers.IO) {
                 deletedCount = itemsToDelete.count { Utils.deleteFile(requireContext(), it.file) }
             }
-            // Switch back to the Main thread for UI updates
             if (deletedCount > 0) {
                 Utils.showToast(requireContext(), getString(R.string.saved_items_deleted, deletedCount))
-                loadMedia(currentMediaType) // Reload media to reflect deletions
+                loadMedia(currentMediaType)
             } else {
                 Utils.showToast(requireContext(), getString(R.string.saved_delete_failed))
             }
@@ -294,9 +349,7 @@ class SavedFragment : Fragment() {
     }
 
     private fun shareSelectedItems() {
-        if (selectedItems.isEmpty()) {
-            return
-        }
+        if (selectedItems.isEmpty()) return
 
         val fileUris = selectedItems.map { mediaItem ->
             FileProvider.getUriForFile(
