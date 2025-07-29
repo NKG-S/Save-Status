@@ -387,27 +387,33 @@ class SavedFragment : Fragment() {
         val actualItemIndex = currentMediaList.indexOfFirst { it.uri == mediaItem.uri }
         if (actualItemIndex != -1) {
             val actualItem = currentMediaList[actualItemIndex]
-            actualItem.isSelected = !actualItem.isSelected
+            val newSelectionState = !actualItem.isSelected
 
-            if (actualItem.isSelected) {
-                selectedItems.add(actualItem)
+            // Create updated item
+            val updatedItem = actualItem.copy(isSelected = newSelectionState)
+
+            // Update the selected items set with updatedItem (not old one)
+            if (newSelectionState) {
+                selectedItems.add(updatedItem)
             } else {
-                selectedItems.remove(actualItem)
+                selectedItems.removeIf { it.uri == updatedItem.uri }
             }
 
+            // Update the current media list
             val updatedList = currentMediaList.toMutableList()
-            updatedList[actualItemIndex] = actualItem.copy(isSelected = actualItem.isSelected)
+            updatedList[actualItemIndex] = updatedItem
             currentMediaList = updatedList
-            savedAdapter.submitList(updatedList) {
-                savedAdapter.notifyItemChanged(position)
-            }
-        }
 
-        updateActionModeTitle()
-        if (selectedItems.isEmpty()) {
-            actionMode?.finish()
+            savedAdapter.submitList(updatedList)
+            savedAdapter.notifyItemChanged(position)
+
+            updateActionModeTitle()
+            if (selectedItems.isEmpty()) {
+                actionMode?.finish()
+            }
         }
     }
+
 
     private fun updateActionModeTitle() {
         val count = selectedItems.size
@@ -442,20 +448,28 @@ class SavedFragment : Fragment() {
             }
         }
 
+
         @SuppressLint("NotifyDataSetChanged")
         override fun onDestroyActionMode(mode: ActionMode?) {
             actionMode = null
             savedAdapter.isSelectionMode = false
 
+            // Clear selection state from all items
             val clearedList = currentMediaList.map { item ->
                 item.copy(isSelected = false)
             }
+
+            // Clear the selected items set
             selectedItems.clear()
+
+            // Update the current list and adapter
             currentMediaList = clearedList
             savedAdapter.submitList(clearedList) {
+                // Only call notifyDataSetChanged after the list is submitted
                 savedAdapter.notifyDataSetChanged()
             }
 
+            // Restore visibility of UI elements
             binding.appBarLayout.visibility = View.VISIBLE
             binding.tabLayout.visibility = View.VISIBLE
         }
