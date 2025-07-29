@@ -9,11 +9,14 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.DocumentsContract
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
@@ -93,44 +96,55 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    private val autoSaveHandler = Handler(Looper.getMainLooper())
+    private val autoSaveRunnable = object : Runnable {
+        override fun run() {
+            performAutoSaveIfEnabled(requireContext())
+            autoSaveHandler.postDelayed(this, 15 * 60 * 1000L) // Repeat every 15 minutes
+        }
+    }
 
     private fun setupStorageSettings() {
-        // Handle folder picker
         binding.itemChangeFolder.setOnClickListener {
             openFolderPicker()
         }
 
-        // Set switch state from SharedPreferences
-        binding.switchAutoSaveAll.isChecked =
-            sharedPreferences.getBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)
+        val isAutoSaveEnabled = sharedPreferences.getBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)
+        binding.switchAutoSaveAll.isChecked = isAutoSaveEnabled
 
-        // Handle toggle changes
         binding.switchAutoSaveAll.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 sharedPreferences.edit {
                     putBoolean(Constants.KEY_AUTO_SAVE_STATUSES, true)
                 }
                 showSnackbar("Auto Save enabled")
-                performAutoSaveIfEnabled(requireContext())
+                startRepeatingAutoSave()
             } else {
                 showDisableAutoSaveConfirmation()
             }
         }
 
-        // Trigger auto-save when app starts
-        if (sharedPreferences.getBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)) {
-            performAutoSaveIfEnabled(requireContext())
+        if (isAutoSaveEnabled) {
+            startRepeatingAutoSave()
         }
 
-        // Navigate to auto-saved screen
         binding.itemGoToAutoSaved.setOnClickListener {
             navigateToSavedStatuses()
         }
 
-        // Clear manually
         binding.itemClearAutoSaved.setOnClickListener {
             showClearAllConfirmationDialog()
         }
+    }
+
+    private fun startRepeatingAutoSave() {
+        performAutoSaveIfEnabled(requireContext())
+        autoSaveHandler.removeCallbacks(autoSaveRunnable)
+        autoSaveHandler.postDelayed(autoSaveRunnable, 15 * 60 * 1000L)
+    }
+
+    private fun stopRepeatingAutoSave() {
+        autoSaveHandler.removeCallbacks(autoSaveRunnable)
     }
 
     private fun showDisableAutoSaveConfirmation() {
@@ -142,11 +156,13 @@ class SettingsFragment : Fragment() {
                 sharedPreferences.edit {
                     putBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)
                 }
+                stopRepeatingAutoSave()
                 showSnackbar("Auto Save disabled and folder cleared")
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                binding.switchAutoSaveAll.isChecked = true
+            .setNegativeButton("Keep Media") { dialog, _ ->
+                binding.switchAutoSaveAll.isChecked = false
+                showSnackbar("Didn't delete all media save until now")
                 dialog.dismiss()
             }
             .setCancelable(false)
@@ -177,14 +193,34 @@ class SettingsFragment : Fragment() {
                 }
             }
         }
+        clearCopiedPrefs() // Clear tracking prefs on delete
+    }
+
+    @SuppressLint("UseKtx")
+    private fun clearCopiedPrefs() {
+        val prefs = sharedPreferences
+        val editor = prefs.edit()
+        prefs.all.keys
+            .filter { it.startsWith("COPIED_") }
+            .forEach { key -> editor.remove(key) }
+        editor.apply()
+    }
+
+    private fun wasFileAlreadyCopied(file: File, prefs: SharedPreferences): Boolean {
+        val key = "COPIED_${file.absolutePath.hashCode()}"
+        return prefs.getLong(key, -1L) == file.lastModified()
+    }
+
+    @SuppressLint("UseKtx")
+    private fun markFileAsCopied(file: File, prefs: SharedPreferences) {
+        val key = "COPIED_${file.absolutePath.hashCode()}"
+        prefs.edit().putLong(key, file.lastModified()).apply()
     }
 
     @SuppressLint("SimpleDateFormat")
     fun performAutoSaveIfEnabled(context: Context) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val isAutoSaveEnabled = prefs.getBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)
-
-        if (!isAutoSaveEnabled) return
+        if (!prefs.getBoolean(Constants.KEY_AUTO_SAVE_STATUSES, false)) return
 
         val autoSaveDir = File(Environment.getExternalStorageDirectory(), Constants.KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH)
         if (!autoSaveDir.exists()) autoSaveDir.mkdirs()
@@ -197,16 +233,23 @@ class SettingsFragment : Fragment() {
         sourceDirs.forEach { sourceDir ->
             if (sourceDir.exists() && sourceDir.isDirectory) {
                 sourceDir.listFiles()?.forEach { file ->
-                    if (file.isFile && (file.name.endsWith(".jpg") || file.name.endsWith(".mp4"))) {
-                        val uniqueName = generateUniqueFileName(file)
-                        val destFile = File(autoSaveDir, uniqueName)
+                    if (file.isFile && (file.extension == "jpg" || file.extension == "mp4")) {
+                        if (!wasFileAlreadyCopied(file, prefs)) {
+                            val destFileName = generateDeterministicFileName(file)
+                            val destFile = File(autoSaveDir, destFileName)
 
-                        if (!destFile.exists()) {
-                            try {
-                                file.copyTo(destFile)
-                                Log.d("AutoSave", "Saved: ${destFile.name}")
-                            } catch (e: Exception) {
-                                Log.e("AutoSave", "Failed to copy: ${file.name}", e)
+                            // Prevent duplicates by checking destination folder for the deterministic filename
+                            if (!destFile.exists()) {
+                                try {
+                                    file.copyTo(destFile)
+                                    markFileAsCopied(file, prefs)
+                                    Log.d("AutoSave", "Saved: ${destFile.name}")
+                                } catch (e: Exception) {
+                                    Log.e("AutoSave", "Failed to copy: ${file.name}", e)
+                                }
+                            } else {
+                                // If file already exists, mark as copied anyway
+                                markFileAsCopied(file, prefs)
                             }
                         }
                     }
@@ -216,13 +259,11 @@ class SettingsFragment : Fragment() {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private fun generateUniqueFileName(file: File): String {
-        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val extension = file.extension
-        val uuid = UUID.randomUUID().toString().take(8)
-        return "${uuid}_${timestamp}.${extension}"
+    private fun generateDeterministicFileName(file: File): String {
+        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date(file.lastModified()))
+        val baseName = file.nameWithoutExtension
+        return "${baseName}_$timestamp.${file.extension}"
     }
-
 
 
 
