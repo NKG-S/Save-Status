@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Material Design 3 Palette Colors (Light Theme) -->
     <color name="md_theme_primary">#075E54</color>
-    <color name="background">#FFFFFF</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
-    <color name="md_theme_primaryContainer">#337669</color>
+    <color name="md_theme_primaryContainer">#DCF8C6</color>
     <color name="md_theme_onPrimaryContainer">#00201C</color>
-    <color name="md_theme_secondary">#4A635F</color>
+
+    <color name="md_theme_secondary">#128C7E</color>
     <color name="md_theme_onSecondary">#FFFFFF</color>
-    <color name="md_theme_secondaryContainer">#CCE8E2</color>
+    <color name="md_theme_secondaryContainer">#E0F5F2</color>
     <color name="md_theme_onSecondaryContainer">#05201D</color>
-    <color name="md_theme_tertiary">#47627A</color>
+
+    <color name="md_theme_tertiary">#25D366</color>
     <color name="md_theme_onTertiary">#FFFFFF</color>
-    <color name="md_theme_tertiaryContainer">#CDE6FF</color>
-    <color name="md_theme_onTertiaryContainer">#001E32</color>
+    <color name="md_theme_tertiaryContainer">#E6FFEB</color>
+    <color name="md_theme_onTertiaryContainer">#002012</color>
+
     <color name="md_theme_error">#BA1A1A</color>
     <color name="md_theme_onError">#FFFFFF</color>
     <color name="md_theme_errorContainer">#FFDAD6</color>
     <color name="md_theme_onErrorContainer">#410002</color>
-    <color name="md_theme_shadow">#000000</color>
-    <color name="md_theme_inverseSurface">#2E3130</color>
+
+    <color name="md_theme_background">#FFFFFF</color> <color name="md_theme_onBackground">#191C1B</color> <color name="md_theme_surface">#FFFFFF</color> <color name="md_theme_onSurface">#191C1B</color> <color name="md_theme_surfaceVariant">#DBE5E1</color> <color name="md_theme_onSurfaceVariant">#3F4947</color> <color name="md_theme_inverseSurface">#2E3130</color>
     <color name="md_theme_inverseOnSurface">#EFF1EF</color>
+
+    <color name="md_theme_shadow">#000000</color>
     <color name="md_theme_inversePrimary">#53DBCA</color>
     <color name="md_theme_surfaceTint">#006B5F</color>
     <color name="md_theme_scrim">#000000</color>
@@ -28,84 +31,48 @@
     <color name="md_theme_outline">#6F7977</color>
     <color name="md_theme_outlineVariant">#BFC9C6</color>
 
-
-    <!-- Core Theme Colors for Background and Text -->
-    <color name="md_theme_background">#FBFDFB</color> <!-- Light background -->
-    <color name="md_theme_onBackground">#191C1B</color> <!-- Dark letters -->
-    <color name="md_theme_surface">#FBFDFB</color> <!-- Light surface -->
-    <color name="md_theme_onSurface">#191C1B</color> <!-- Dark letters -->
-    <color name="md_theme_surfaceVariant">#DBE5E1</color>
-    <color name="md_theme_onSurfaceVariant">#3F4947</color> <!-- Calm dark for icons/secondary text -->
-
-    <!-- Custom Colors for Specific UI Elements -->
     <color name="bottom_nav_selected">@color/md_theme_primary</color>
     <color name="bottom_nav_unselected">@color/md_theme_onSurfaceVariant</color>
 
-    <!-- Media Controls Specific Colors (can be consistent across themes if desired) -->
-    <color name="media_controls_background">#80000000</color> <!-- Semi-transparent black -->
-    <color name="media_controls_text_color">#FFFFFF</color> <!-- White text on dark controls -->
-    <color name="media_controls_buffered_color">#B3FFFFFF</color> <!-- Semi-transparent white for buffered progress -->
-    <color name="media_controls_unplayed_color">#4DFFFFFF</color> <!-- More transparent white for unplayed progress -->
-    <color name="media_controls_icon_tint">#FFFFFF</color> <!-- White icons on dark controls -->
-
-    <!-- Overlay color for selected items in lists -->
-    <color name="overlay_background_dark">#7F000000</color> <!-- Semi-transparent black for overlays -->
-
-
-
-
-
-    <color name="video_background">#000000</color>
+    <color name="media_controls_background">#80000000</color> <color name="media_controls_text_color">#FFFFFF</color> <color name="media_controls_buffered_color">#B3FFFFFF</color> <color name="media_controls_unplayed_color">#4DFFFFFF</color> <color name="media_controls_icon_tint">#FFFFFF</color> <color name="overlay_background_dark">#7F000000</color> <color name="video_background">#000000</color>
     <color name="video_surface_background">#000000</color>
     <color name="image_viewer_background">#0F0F0F</color>
     <color name="image_surface_background">#FFFFFF</color>
 
-    <!-- Action Card Colors -->
     <color name="action_card_background">#FFFFFF</color>
-    <color name="action_card_background_dark">#1E1E1E</color>
 
-
-    <color name="design_default_color_primary">#075e54</color>
-
-    <!-- Toolbar Colors -->
     <color name="toolbar_icon_color">#FFFFFF</color>
     <color name="toolbar_text_color">#FFFFFF</color>
-    <color name="toolbar_icon_color_dark">#E0E0E0</color>
-    <color name="toolbar_text_color_dark">#E0E0E0</color>
 
-    <!-- Button Colors -->
-    <color name="save_button_background">@color/design_default_color_primary</color>
-    <color name="save_button_background_dark">@color/design_default_color_primary</color>
+    <color name="save_button_background">@color/md_theme_primary</color>
     <color name="button_text_color">#FFFFFF</color>
     <color name="button_icon_color">#FFFFFF</color>
 
-    <color name="button_outline_text_color">@color/design_default_color_primary</color>
-    <color name="button_outline_icon_color">@color/design_default_color_primary</color>
-    <color name="button_outline_stroke_color">@color/design_default_color_primary</color>
+    <color name="button_outline_text_color">@color/md_theme_primary</color>
+    <color name="button_outline_icon_color">@color/md_theme_primary</color>
+    <color name="button_outline_stroke_color">@color/md_theme_primary</color>
 
-    <!-- Media Info Colors -->
-    <color name="media_info_icon_color">@color/design_default_color_primary</color>
+    <color name="media_info_icon_color">@color/md_theme_primary</color>
     <color name="media_info_text_color">#757575</color>
-    <color name="media_info_text_color_dark">#BDBDBD</color>
 
-    <!-- Control Colors -->
     <color name="control_button_icon_color">#FFFFFF</color>
-    <color name="control_button_icon_color_dark">#E0E0E0</color>
-    <color name="main_control_button_icon_color">@color/design_default_color_primary</color>
+    <color name="main_control_button_icon_color">@color/md_theme_primary</color>
 
-    <!-- Progress Bar Colors -->
-    <color name="progress_played_color">@color/design_default_color_primary</color>
     <color name="progress_buffered_color">#80FFFFFF</color>
     <color name="progress_unplayed_color">#40FFFFFF</color>
-    <color name="progress_scrubber_color">@color/design_default_color_primary</color>
+    <color name="progress_scrubber_color">@color/md_theme_primary</color>
+    <color name="progress_played_color">@color/md_theme_primary</color>
 
-    <!-- Dark theme variants -->
+    <color name="controls_text_primary">#FFFFFF</color>
+
+    <color name="controls_text_primary_dark">#E0E0E0</color>
+    <color name="control_button_icon_color_dark">#E0E0E0</color>
     <color name="progress_buffered_color_dark">#80E0E0E0</color>
     <color name="progress_unplayed_color_dark">#40E0E0E0</color>
+    <color name="action_card_background_dark">#1E1E1E</color>
+    <color name="toolbar_text_color_dark">#E0E0E0</color>
+    <color name="media_info_text_color_dark">#BDBDBD</color>
+    <color name="toolbar_icon_color_dark">#E0E0E0</color>
+    <color name="save_button_background_dark">@color/md_theme_primary</color>
 
-    <!-- Controls Text Colors -->
-    <color name="controls_text_primary">#FFFFFF</color>
-    <color name="controls_text_primary_dark">#E0E0E0</color>
-
-
-</resources>
+    <color name="background">#FFFFFF</color> </resources>
