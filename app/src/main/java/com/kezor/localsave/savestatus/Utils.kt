@@ -10,6 +10,9 @@ import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import com.kezor.localsave.savestatus.Utils.getMediaFromDirectory
+import com.kezor.localsave.savestatus.Utils.isImage
+import com.kezor.localsave.savestatus.Utils.isVideo
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
 import java.io.FileInputStream
@@ -138,4 +141,45 @@ object Utils {
         val sdf = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
         return sdf.format(Date(timestamp))
     }
+
+    fun MediaItem.isImage(): Boolean {
+        val extension = file?.extension?.lowercase()
+        return extension in listOf("jpg", "jpeg", "png", "webp")
+    }
+
+    fun MediaItem.isVideo(): Boolean {
+        val extension = file?.extension?.lowercase()
+        return extension in listOf("mp4", "3gp", "mkv")
+    }
+
+
+    fun getMediaFromDirectory(directory: File): List<MediaItem> {
+        val mediaList = mutableListOf<MediaItem>()
+
+        if (directory.exists() && directory.isDirectory) {
+            directory.listFiles()?.filter { file ->
+                file.isFile && !file.name.startsWith(".") &&
+                        (file.extension.lowercase() in listOf("jpg", "jpeg", "png", "mp4", "avi", "mkv"))
+            }?.forEach { file ->
+                val type = when (file.extension.lowercase()) {
+                    "mp4", "avi", "mkv" -> Constants.MEDIA_TYPE_VIDEO
+                    else -> Constants.MEDIA_TYPE_IMAGE
+                }
+
+                mediaList.add(
+                    MediaItem(
+                        file = file,
+                        uri = file.absolutePath,
+                        type = type,
+                        lastModified = file.lastModified()
+                    )
+                )
+            }
+        }
+
+        return mediaList
+    }
+
+
+
 }

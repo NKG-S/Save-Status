@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -38,27 +39,49 @@ class StatusAdapter(
     }
 
     inner class MediaViewHolder(private val binding: ItemMediaGridBinding) : RecyclerView.ViewHolder(binding.root) {
+
         fun bind(mediaItem: MediaItem) {
             binding.apply {
+                // Load thumbnail
                 Glide.with(itemView.context)
                     .load(mediaItem.file)
                     .centerCrop()
                     .into(imageViewThumbnail)
 
-                imageViewVideoIcon.visibility = if (mediaItem.type == Constants.MEDIA_TYPE_VIDEO) View.VISIBLE else View.GONE
+                // Show play icon if video
+                imageViewVideoIcon.visibility =
+                    if (mediaItem.type == Constants.MEDIA_TYPE_VIDEO) View.VISIBLE else View.GONE
 
-                // Updated logic for selection visibility based on mediaItem.isSelected
-                imageViewSelectedOverlay.visibility = if (mediaItem.isSelected) View.VISIBLE else View.GONE
-                imageViewCheckmark.visibility = if (mediaItem.isSelected) View.VISIBLE else View.GONE
-                cardView.strokeWidth = if (mediaItem.isSelected) 4 else 0
-                cardView.strokeColor = if (mediaItem.isSelected) itemView.context.getColor(R.color.md_theme_primary) else itemView.context.getColor(android.R.color.transparent)
-
-                itemView.setOnClickListener {
-                    onItemClick(mediaItem, adapterPosition)
+                // Selection visuals based on selection mode
+                if (isSelectionMode) {
+                    imageViewSelectedOverlay.visibility = if (mediaItem.isSelected) View.VISIBLE else View.GONE
+                    imageViewCheckmark.visibility = if (mediaItem.isSelected) View.VISIBLE else View.GONE
+                    cardView.strokeWidth = if (mediaItem.isSelected) 4 else 0
+                    cardView.strokeColor = if (mediaItem.isSelected)
+                        ContextCompat.getColor(itemView.context, R.color.md_theme_primary)
+                    else
+                        ContextCompat.getColor(itemView.context, android.R.color.transparent)
+                } else {
+                    imageViewSelectedOverlay.visibility = View.GONE
+                    imageViewCheckmark.visibility = View.GONE
+                    cardView.strokeWidth = 0
+                    cardView.strokeColor = ContextCompat.getColor(itemView.context, android.R.color.transparent)
                 }
+
+                // Click & long click handling
+                itemView.setOnClickListener {
+                    val pos = absoluteAdapterPosition
+                    if (pos != RecyclerView.NO_POSITION) {
+                        onItemClick(mediaItem, pos)
+                    }
+                }
+
                 itemView.setOnLongClickListener {
-                    onItemLongClick(mediaItem, itemView)
-                    true
+                    val pos = absoluteAdapterPosition
+                    if (pos != RecyclerView.NO_POSITION) {
+                        onItemLongClick(mediaItem, itemView)
+                        true
+                    } else false
                 }
             }
         }

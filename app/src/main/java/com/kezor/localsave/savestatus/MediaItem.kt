@@ -28,6 +28,9 @@ data class MediaItem(
         return true
     }
 
+
+
+
     override fun hashCode(): Int {
         var result = uri.hashCode()
         result = 31 * result + type.hashCode()
