@@ -11,4 +11,15 @@
         <attr name="titleText" format="string" />
     </declare-styleable>
 
+    <declare-styleable name="MediaViewerTheme">
+        <attr name="mediaControlsBackgroundColor" format="color" />
+        <attr name="mediaControlsTextColor" format="color" />
+        <attr name="mediaControlsIconColor" format="color" />
+        <attr name="mediaProgressPlayedColor" format="color" />
+        <attr name="mediaProgressBufferedColor" format="color" />
+        <attr name="mediaProgressUnplayedColor" format="color" />
+        <attr name="actionCardBackgroundColor" format="color" />
+        <attr name="toolbarOverlayColor" format="color" />
+    </declare-styleable>
+
 </resources>

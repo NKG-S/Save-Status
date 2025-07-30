@@ -365,6 +365,15 @@ class SettingsFragment : Fragment() {
             }
         }
     }
+    private fun navigateToSavedStatuses() {
+        try {
+            val intent = Intent(requireContext(), SaveAll::class.java)
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error navigating to saved statuses", e)
+            showSnackbar("Unable to open saved statuses")
+        }
+    }
 
     private fun canWriteToUri(uri: Uri): Boolean {
         return try {
@@ -388,17 +397,6 @@ class SettingsFragment : Fragment() {
         binding.itemDeveloperInfo.setOnClickListener { showDeveloperInfo() }
         setAppVersion()
     }
-
-    private fun navigateToSavedStatuses() {
-        try {
-            val intent = Intent(requireContext(), SaveAll::class.java)
-            startActivity(intent)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error navigating to saved statuses", e)
-            showSnackbar("Unable to open saved statuses")
-        }
-    }
-
 
     @SuppressLint("UseKtx", "QueryPermissionsNeeded")
     private fun openPlayStore() {
@@ -456,15 +454,8 @@ class SettingsFragment : Fragment() {
     }
 
     private fun showDeveloperInfo() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Developer Information")
-            .setMessage("""
-                Developer: Kezor Technologies
-                Email: developer@kezor.com
-                Website: https://kezor.com
-                
-                Thank you for using our app!
-            """.trimIndent())
+        AlertDialog.Builder(requireContext()).setTitle(getString(R.string.developer_information))
+            .setMessage(getString(R.string.developer_information_message).trimIndent())
             .setPositiveButton("Contact") { dialog, _ ->
                 contactDeveloper()
                 dialog.dismiss()
@@ -473,22 +464,35 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
-    @SuppressLint("UseKtx", "QueryPermissionsNeeded")
+    @SuppressLint("QueryPermissionsNeeded", "UseKtx")
     private fun contactDeveloper() {
         try {
+            val recipient = getString(R.string.developer_contact)
+            val subject = "User Feedback Of ${getString(R.string.app_name)}"
+
             val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:developer@kezor.com")
-                putExtra(Intent.EXTRA_SUBJECT, "Feedback for ${getString(R.string.app_name)}")
+                data = Uri.parse(recipient)
+                putExtra(Intent.EXTRA_SUBJECT, subject)
             }
 
             if (emailIntent.resolveActivity(requireContext().packageManager) != null) {
                 startActivity(emailIntent)
             } else {
-                showSnackbar("No email app found")
+                val fallbackEmailIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "message/rfc822"
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient.replace("mailto:", "")))
+                    putExtra(Intent.EXTRA_SUBJECT, subject)
+                }
+
+                if (fallbackEmailIntent.resolveActivity(requireContext().packageManager) != null) {
+                    startActivity(Intent.createChooser(fallbackEmailIntent, "Send email using..."))
+                } else {
+                    showSnackbar("No email app found or configured on this device.")
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error opening email app", e)
-            showSnackbar("Unable to open email app")
+            showSnackbar("Unable to open email app: ${e.localizedMessage}")
         }
     }
 
@@ -498,7 +502,7 @@ class SettingsFragment : Fragment() {
             val packageInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
             binding.textAppVersion.text = "${packageInfo.versionName} (${packageInfo.longVersionCode})"
         } catch (e: PackageManager.NameNotFoundException) {
-            binding.textAppVersion.text = "Unknown"
+            binding.textAppVersion.text = getString(R.string.app_name)
             Log.e(TAG, "Error getting app version", e)
         }
     }

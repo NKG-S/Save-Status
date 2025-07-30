@@ -9,10 +9,6 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
-import androidx.core.content.FileProvider
-import com.kezor.localsave.savestatus.Utils.getMediaFromDirectory
-import com.kezor.localsave.savestatus.Utils.isImage
-import com.kezor.localsave.savestatus.Utils.isVideo
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
 import java.io.FileInputStream
@@ -81,15 +77,6 @@ object Utils {
         }
     }
 
-    /**
-     * Deletes a file from storage. It first attempts a direct file deletion.
-     * If that fails (commonly due to Scoped Storage on Android 10+), it tries to
-     * delete the file using the MediaStore ContentResolver for better compatibility.
-     *
-     * @param context The application context.
-     * @param file The file to be deleted.
-     * @return True if the file was successfully deleted, false otherwise.
-     */
     fun deleteFile(context: Context, file: File): Boolean {
         try {
             // First, try a direct deletion. This is fast and works for app-specific files.

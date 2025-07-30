@@ -59,4 +59,16 @@
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     </style>
 
+    <style name="MediaViewerTheme.Dark" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="mediaControlsBackgroundColor">@color/controls_background</item>
+        <item name="mediaControlsTextColor">@color/controls_text_primary_dark</item>
+        <item name="mediaControlsIconColor">@color/control_button_icon_color_dark</item>
+        <item name="mediaProgressPlayedColor">@color/progress_played_color</item>
+        <item name="mediaProgressBufferedColor">@color/progress_buffered_color_dark</item>
+        <item name="mediaProgressUnplayedColor">@color/progress_unplayed_color_dark</item>
+        <item name="actionCardBackgroundColor">@color/action_card_background_dark</item>
+        <item name="toolbarOverlayColor">@color/toolbar_text_color_dark</item>
+        <item name="android:statusBarColor">@color/video_background</item>
+        <item name="android:navigationBarColor">@color/video_background</item>
+    </style>
 </resources>

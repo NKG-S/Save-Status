@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Material Design 3 Palette Colors (Light Theme) -->
-    <color name="md_theme_primary">#006B5F</color>
+    <color name="md_theme_primary">#002E2A</color>
     <color name="background">#FFFFFF</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
-    <color name="md_theme_primaryContainer">#73F8E2</color>
+    <color name="md_theme_primaryContainer">#337669</color>
     <color name="md_theme_onPrimaryContainer">#00201C</color>
     <color name="md_theme_secondary">#4A635F</color>
     <color name="md_theme_onSecondary">#FFFFFF</color>
@@ -48,6 +48,60 @@
     <color name="media_controls_icon_tint">#FFFFFF</color> <!-- White icons on dark controls -->
 
     <!-- Overlay color for selected items in lists -->
-    <color name="overlay_background_dark">#80000000</color> <!-- Semi-transparent black for overlays -->
+    <color name="overlay_background_dark">#7F000000</color> <!-- Semi-transparent black for overlays -->
+
+
+
+
+
+    <color name="video_background">#000000</color>
+    <color name="video_surface_background">#000000</color>
+    <color name="image_viewer_background">#0F0F0F</color>
+    <color name="image_surface_background">#FFFFFF</color>
+
+    <!-- Action Card Colors -->
+    <color name="action_card_background">#FFFFFF</color>
+    <color name="action_card_background_dark">#1E1E1E</color>
+
+    <!-- Toolbar Colors -->
+    <color name="toolbar_icon_color">#FFFFFF</color>
+    <color name="toolbar_text_color">#FFFFFF</color>
+    <color name="toolbar_icon_color_dark">#E0E0E0</color>
+    <color name="toolbar_text_color_dark">#E0E0E0</color>
+
+    <!-- Button Colors -->
+    <color name="save_button_background">@color/design_default_color_primary</color>
+    <color name="save_button_background_dark">@color/design_default_color_primary</color>
+    <color name="button_text_color">#FFFFFF</color>
+    <color name="button_icon_color">#FFFFFF</color>
+
+    <color name="button_outline_text_color">@color/design_default_color_primary</color>
+    <color name="button_outline_icon_color">@color/design_default_color_primary</color>
+    <color name="button_outline_stroke_color">@color/design_default_color_primary</color>
+
+    <!-- Media Info Colors -->
+    <color name="media_info_icon_color">@color/design_default_color_primary</color>
+    <color name="media_info_text_color">#757575</color>
+    <color name="media_info_text_color_dark">#BDBDBD</color>
+
+    <!-- Control Colors -->
+    <color name="control_button_icon_color">#FFFFFF</color>
+    <color name="control_button_icon_color_dark">#E0E0E0</color>
+    <color name="main_control_button_icon_color">@color/design_default_color_primary</color>
+
+    <!-- Progress Bar Colors -->
+    <color name="progress_played_color">@color/design_default_color_primary</color>
+    <color name="progress_buffered_color">#80FFFFFF</color>
+    <color name="progress_unplayed_color">#40FFFFFF</color>
+    <color name="progress_scrubber_color">@color/design_default_color_primary</color>
+
+    <!-- Dark theme variants -->
+    <color name="progress_buffered_color_dark">#80E0E0E0</color>
+    <color name="progress_unplayed_color_dark">#40E0E0E0</color>
+
+    <!-- Controls Text Colors -->
+    <color name="controls_text_primary">#FFFFFF</color>
+    <color name="controls_text_primary_dark">#E0E0E0</color>
+
 
 </resources>

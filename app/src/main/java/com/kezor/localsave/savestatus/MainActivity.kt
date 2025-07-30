@@ -1,6 +1,7 @@
 package com.kezor.localsave.savestatus
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -74,6 +75,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("UseKtx")
     override fun onResume() {
         super.onResume()
         // Re-check permissions and adjust UI visibility on resume

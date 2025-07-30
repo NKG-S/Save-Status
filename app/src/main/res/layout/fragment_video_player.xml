@@ -3,12 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UseAppTint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorOnBackground"
+    android:background="@color/video_background"
+    android:fitsSystemWindows="true"
     tools:context=".MediaViewerFragment">
 
-    <!-- ExoPlayer view - now spans the entire screen, overlaid by other elements -->
+    <!-- ExoPlayer view - maintains exact same functionality -->
     <com.google.android.exoplayer2.ui.StyledPlayerView
         android:id="@+id/video_player_view"
         android:layout_width="0dp"
@@ -21,14 +23,14 @@
         app:controller_layout_id="@layout/exoplayer_custom_controls"
         app:resize_mode="fit"
         app:time_bar_min_update_interval="1000"
-        app:show_timeout="1000"/>
+        app:show_timeout="1000"
+        android:background="@color/video_surface_background" />
 
-    <!-- Top App Bar - overlaid on top of the video player -->
+    <!-- Enhanced Top App Bar - same structure, better styling -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
         android:elevation="0dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,60 +42,115 @@
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back_outlined"
             app:navigationContentDescription="@string/cd_back_button"
-            app:navigationIconTint="?attr/colorOnBackground"
-            app:titleTextColor="?attr/colorOnBackground"
+            app:navigationIconTint="@color/toolbar_icon_color"
+            app:titleTextColor="@color/toolbar_text_color"
             app:titleTextAppearance="?attr/textAppearanceTitleLarge"
             android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+            android:paddingEnd="16dp"
+            android:background="@android:color/transparent" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- Enhanced Action Bar Container - same ID, improved design -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/action_bar_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="6dp"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:backgroundTint="?attr/colorSurface">
+        app:cardBackgroundColor="@color/action_card_background"
+        app:strokeWidth="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="bottom"
-            android:background="@android:color/transparent"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:padding="16dp">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_save"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
+            <!-- Media Info Section (Optional enhancement) -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:contentDescription="@string/cd_save_button"
-                android:text="@string/status_save_button"
-                android:textColor="?attr/colorPrimary"
-                app:icon="@drawable/ic_save_outlined"
-                app:iconTint="?attr/colorPrimary" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                android:id="@+id/media_info_section"
+                tools:ignore="UseCompoundDrawables">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_share"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_video_outlined"
+                    android:tint="@color/media_info_icon_color"
+                    android:contentDescription="@string/cd_video_icon"
+                    tools:ignore="UseAppTint" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="@color/media_info_text_color"
+                    android:text="Video"
+                    android:id="@+id/media_type_text"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <!-- Original Button Layout - Enhanced -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:contentDescription="@string/cd_share_button"
-                android:text="@string/saved_share_button"
-                android:textColor="?attr/colorPrimary"
-                app:icon="@drawable/ic_share_outlined"
-                app:iconTint="?attr/colorPrimary" />
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <!-- Enhanced Save Button - same ID -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_save"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@string/cd_save_button"
+                    android:text="@string/status_save_button"
+                    android:textColor="@color/button_text_color"
+                    android:textSize="14sp"
+                    app:icon="@drawable/ic_save_outlined"
+                    app:iconTint="@color/button_icon_color"
+                    app:iconSize="18dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="@color/save_button_background" />
+
+                <!-- Enhanced Share Button - same ID -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_share"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="@string/cd_share_button"
+                    android:text="@string/saved_share_button"
+                    android:textColor="@color/button_outline_text_color"
+                    android:textSize="14sp"
+                    app:icon="@drawable/ic_share"
+                    app:iconTint="@color/button_outline_icon_color"
+                    app:iconSize="18dp"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/button_outline_stroke_color"
+                    app:strokeWidth="1dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
+
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,11 +3,6 @@
     <!-- App Name -->
     <string name="app_name">SaveStatus</string>
 
-    <!-- Content Descriptions (Accessibility) -->
-    <string name="cd_previous_button">Previous</string>
-    <string name="cd_play_pause_button">Play/Pause</string>
-    <string name="cd_next_button">Next</string>
-    <string name="cd_media_thumbnail">Media thumbnail</string>
     <string name="cd_permission_icon">Permission icon</string>
 
     <!-- Navigation -->
@@ -248,14 +243,6 @@
     <string name="title_status">Status</string>
     <string name="title_saved">Saved</string>
 
-    <!-- Content description strings for accessibility -->
-    <string name="cd_back_button">Back button</string>
-    <string name="cd_save_button">Save button</string>
-    <string name="cd_share_button">Share button</string>
-
-    <!-- Button text strings -->
-    <string name="status_save_button">Save</string>
-    <string name="saved_share_button">Share</string>
     <string name="permission_go_to_settings_button">Go to Settings</string>
 
     <!-- Tab strings -->
@@ -310,6 +297,23 @@
     <string name="developer_information_message">Developer: Kezor Technologies\nEmail: demonkids1234@gmail.com\nWebsite: http://wa.me/94777678678\nThank you for using our app!\n</string>
     <string name="developer_contact">demonkids1234@gmail.com</string>
     <string name="action_download">Save</string>
+
+
+    <!-- Content Descriptions -->
+    <string name="cd_video_icon">Video icon</string>
+    <string name="cd_image_icon">Image icon</string>
+
+    <!-- Original strings should remain as they are -->
+    <string name="cd_back_button">Back</string>
+    <string name="cd_save_button">Save</string>
+    <string name="cd_share_button">Share</string>
+    <string name="cd_media_thumbnail">Media thumbnail</string>
+    <string name="cd_previous_button">Previous</string>
+    <string name="cd_next_button">Next</string>
+    <string name="cd_play_pause_button">Play/Pause</string>
+
+    <string name="status_save_button">Save</string>
+    <string name="saved_share_button">Share</string>
 
     <!-- Plural Strings -->
     <plurals name="status_count">

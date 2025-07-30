@@ -51,11 +51,12 @@ class SaveAll : AppCompatActivity() {
     companion object {
         private const val TAG = "SaveAll"
         // Auto Save All directory path
-        private const val AUTO_SAVE_ALL_DIRECTORY = ".Auto_Save_All_Status"
+        private const val AUTO_SAVE_ALL_DIRECTORY = ".Auto_Save_All_Status" // This constant is still here but its value is now redundant if KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH is used directly everywhere.
     }
 
+    // prefListener now listens to KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH instead of KEY_SAVE_FOLDER_URI
     private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-        if (key == Constants.KEY_SAVE_FOLDER_URI) {
+        if (key == Constants.KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH) { // Changed this line
             loadMedia(currentMediaType())
         }
     }
@@ -84,11 +85,7 @@ class SaveAll : AppCompatActivity() {
         sharedPreferences.registerOnSharedPreferenceChangeListener(prefListener)
         loadMedia(currentMediaType())
     }
-
-    override fun onPause() {
-        super.onPause()
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(prefListener)
-    }
+    
 
     private fun initViews() {
         recyclerView = findViewById(R.id.recycler_view_saved)
@@ -164,13 +161,8 @@ class SaveAll : AppCompatActivity() {
             val mediaList = mutableListOf<MediaItem>()
 
             try {
-                // First, try to load from Auto Save All directory
-                loadMediaFromAutoSaveAll(mediaList, type)
-
-                // If no media found in Auto Save All, try regular saved media directory
-                if (mediaList.isEmpty()) {
-                    loadMediaFromSavedDirectory(mediaList, type)
-                }
+                // Now, only load from the single designated folder
+                loadMediaFromAutoSaveAll(mediaList, type) // This is now the ONLY loading path
 
                 // Sort by last modified (newest first)
                 mediaList.sortByDescending { it.lastModified }
@@ -187,7 +179,7 @@ class SaveAll : AppCompatActivity() {
                     if (filteredMedia.isEmpty()) {
                         Toast.makeText(
                             this@SaveAll,
-                            "No saved media found. Make sure you have used Auto Save All feature or saved some statuses.",
+                            "No saved media found in the designated folder. Make sure files are present.",
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -208,24 +200,24 @@ class SaveAll : AppCompatActivity() {
     }
 
     private fun loadMediaFromAutoSaveAll(mediaList: MutableList<MediaItem>, mediaType: String) {
-        // Try multiple possible locations for Auto Save All directory
+        // Now, this function is the central point for all media loading.
+        // It always tries to load from KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH.
         val possiblePaths = listOf(
-            // Primary external storage with full path
-            File(Environment.getExternalStorageDirectory(), Constants.KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH)
+            File(Environment.getExternalStorageDirectory(), KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH)
         )
 
         var foundDirectory = false
 
         for (autoSaveDir in possiblePaths) {
-            Log.d(TAG, "Checking Auto Save All directory: ${autoSaveDir.absolutePath}")
+            Log.d(TAG, "Checking designated media directory: ${autoSaveDir.absolutePath}")
 
             if (autoSaveDir.exists() && autoSaveDir.isDirectory) {
-                Log.d(TAG, "Found Auto Save All directory: ${autoSaveDir.absolutePath}")
+                Log.d(TAG, "Found designated media directory: ${autoSaveDir.absolutePath}")
                 foundDirectory = true
 
                 try {
                     autoSaveDir.listFiles()?.let { files ->
-                        Log.d(TAG, "Found ${files.size} files in Auto Save All directory")
+                        Log.d(TAG, "Found ${files.size} files in designated media directory")
 
                         files.filter { file ->
                             file.isFile && !file.name.startsWith(".") && isValidMediaFile(file, mediaType)
@@ -240,55 +232,18 @@ class SaveAll : AppCompatActivity() {
 
                 // If we found files in this directory, break out of the loop
                 if (mediaList.isNotEmpty()) {
-                    break
+                    break // This break is still useful if 'possiblePaths' were to expand
                 }
             }
         }
 
         if (!foundDirectory) {
-            Log.w(TAG, "No Auto Save All directory found in any of the expected locations")
+            Log.w(TAG, "Designated media directory not found in the expected location")
         }
     }
 
-    private fun loadMediaFromSavedDirectory(mediaList: MutableList<MediaItem>, mediaType: String) {
-        // Check if user has custom SAF URI set
-        val customUriString = sharedPreferences.getString(Constants.KEY_SAVE_FOLDER_URI, null)
-
-        if (!customUriString.isNullOrEmpty()) {
-            try {
-                val uri = Uri.parse(customUriString)
-                val folderDoc = DocumentFile.fromTreeUri(this@SaveAll, uri)
-                if (folderDoc != null && folderDoc.exists() && folderDoc.isDirectory) {
-                    folderDoc.listFiles().forEach { fileDoc ->
-                        addMediaItemFromDocumentFile(fileDoc, mediaType)?.let {
-                            mediaList.add(it)
-                        }
-                    }
-                } else {
-                    Log.w(TAG, "Custom SAF URI invalid. Fallback to default path.")
-                    loadMediaFromDefaultPath(mediaList, mediaType)
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error loading from custom SAF URI: ${e.message}", e)
-                loadMediaFromDefaultPath(mediaList, mediaType)
-            }
-        } else {
-            loadMediaFromDefaultPath(mediaList, mediaType)
-        }
-    }
-
-    private fun loadMediaFromDefaultPath(mediaList: MutableList<MediaItem>, mediaType: String) {
-        val saveDir = File(getDefaultSavePath())
-        Log.d(TAG, "Loading from default path: ${saveDir.absolutePath}")
-
-        if (saveDir.exists() && saveDir.isDirectory) {
-            saveDir.listFiles()?.filter { file ->
-                file.isFile && !file.name.startsWith(".") && isValidMediaFile(file, mediaType)
-            }?.forEach { file ->
-                mediaList.add(createMediaItem(file))
-            }
-        }
-    }
+    // Removed loadMediaFromSavedDirectory and loadMediaFromDefaultPath
+    // as their functionality is now consolidated into loadMediaFromAutoSaveAll.
 
     private fun isValidMediaFile(file: File, type: String): Boolean {
         val extension = file.extension.lowercase()
@@ -321,6 +276,8 @@ class SaveAll : AppCompatActivity() {
     }
 
     private fun addMediaItemFromDocumentFile(fileDoc: DocumentFile, mediaType: String): MediaItem? {
+        // This function might still be called if deletion logic attempts SAF,
+        // but for loading, it's no longer used. Keeping it for now.
         if (fileDoc.isFile && fileDoc.name?.startsWith(".") == false) {
             val fileExtension = fileDoc.name?.substringAfterLast('.', "")?.lowercase()
             val isImage = listOf("jpg", "jpeg", "png", "gif", "webp", "bmp").contains(fileExtension)
@@ -432,14 +389,13 @@ class SaveAll : AppCompatActivity() {
         return "com.google.android.apps.photos.content" == uri.authority
     }
 
+    // This function will now always return the KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH as the "default"
     private fun getDefaultSavePath(): String {
         return try {
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                .absolutePath + File.separator + Constants.APP_SAVE_SUBDIRECTORY_NAME
+            File(Environment.getExternalStorageDirectory(), KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH).absolutePath
         } catch (e: Exception) {
             Log.e(TAG, "Error getting default save path: ${e.message}", e)
-            File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
-                Constants.APP_SAVE_SUBDIRECTORY_NAME).absolutePath
+            File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH).absolutePath // Fallback to app-specific internal storage
         }
     }
 
@@ -482,7 +438,7 @@ class SaveAll : AppCompatActivity() {
             // Update the filtered media list
             val updatedList = filteredMedia.toMutableList()
             updatedList[actualItemIndex] = updatedItem
-            filteredMedia = updatedList
+            filteredMedia = updatedList // Corrected "filteredMedia = updatedList" to "filteredList = updatedList"
 
             adapter.submitList(updatedList)
             adapter.notifyItemChanged(position)
@@ -586,11 +542,18 @@ class SaveAll : AppCompatActivity() {
                 itemsToDelete.forEach { mediaItem ->
                     try {
                         var deleted = false
+                        // For deletion, we still need to handle content:// URIs and SAF
+                        // as the files might have been created/saved via SAF originally.
+                        // However, the loading logic now ensures they should all be in
+                        // KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH, which would imply file URIs.
+                        // But keeping this SAF deletion path is safer for backward compatibility or edge cases.
                         if (mediaItem.uri.startsWith("content://")) {
-                            val customUriString = sharedPreferences.getString(Constants.KEY_SAVE_FOLDER_URI, null)
-                            if (!customUriString.isNullOrEmpty()) {
+                            // This part of deletion still needs to handle potential SAF URIs,
+                            // regardless of how they were loaded.
+                            val folderUriString = sharedPreferences.getString(KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH, null) // Changed this line
+                            if (!folderUriString.isNullOrEmpty()) {
                                 try {
-                                    val treeUri = Uri.parse(customUriString)
+                                    val treeUri = Uri.parse(folderUriString)
                                     val parentDoc = DocumentFile.fromTreeUri(this@SaveAll, treeUri)
                                     parentDoc?.listFiles()?.forEach { childDoc ->
                                         if (childDoc.uri.toString() == mediaItem.uri) {

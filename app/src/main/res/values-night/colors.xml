@@ -43,4 +43,17 @@
     <color name="media_controls_unplayed_color">#4DFFFFFF</color> <!-- More transparent white for unplayed progress -->
     <color name="media_controls_icon_tint">#FFFFFF</color> <!-- White icons on dark controls -->
 
+    <color name="image_surface_background">#121212</color>
+    <color name="action_card_background">@color/action_card_background_dark</color>
+
+    <color name="toolbar_icon_color">@color/toolbar_icon_color_dark</color>
+    <color name="toolbar_text_color">@color/toolbar_text_color_dark</color>
+
+    <color name="media_info_text_color">@color/media_info_text_color_dark</color>
+    <color name="control_button_icon_color">@color/control_button_icon_color_dark</color>
+    <color name="controls_text_primary">@color/controls_text_primary_dark</color>
+
+    <color name="progress_buffered_color">@color/progress_buffered_color_dark</color>
+    <color name="progress_unplayed_color">@color/progress_unplayed_color_dark</color>
+
 </resources>

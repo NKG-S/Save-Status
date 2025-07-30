@@ -106,7 +106,7 @@ class MediaViewerFragment : Fragment() {
     companion object {
         private const val SWIPE_THRESHOLD = 100f
         private const val SWIPE_VELOCITY_THRESHOLD = 100f
-        private const val CONTROLS_HIDE_DELAY = 1500L
+        private const val CONTROLS_HIDE_DELAY = 1750L
         private const val TEMP_FILE_CLEANUP_DELAY = 10000L
         private const val BUFFER_SIZE = 32768 // 32KB
         private const val IMAGE_SIZE_LIMIT = 2048
@@ -605,8 +605,8 @@ class MediaViewerFragment : Fragment() {
             releasePlayer()
 
             player = ExoPlayer.Builder(requireContext())
-                .setSeekBackIncrementMs(10000L)
-                .setSeekForwardIncrementMs(10000L)
+                .setSeekBackIncrementMs(5000L)
+                .setSeekForwardIncrementMs(5000L)
                 .build().also { exoPlayer ->
                     videoBinding?.videoPlayerView?.player = exoPlayer
                     exoPlayer.playWhenReady = playWhenReady
