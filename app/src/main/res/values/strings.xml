@@ -306,6 +306,10 @@
     <string name="Clear_all_saved_statuses_dialog_box_title">Clear All Saved Statuses</string>
     <string name="Clear_all_saved_statuses_dialog_box_description">This will permanently delete all saved statuses.</string>
     <string name="cd_cansel_button">Cancel</string>
+    <string name="developer_information">Developer Information</string>
+    <string name="developer_information_message">Developer: Kezor Technologies\nEmail: demonkids1234@gmail.com\nWebsite: http://wa.me/94777678678\nThank you for using our app!\n</string>
+    <string name="developer_contact">demonkids1234@gmail.com</string>
+    <string name="action_download">Save</string>
 
     <!-- Plural Strings -->
     <plurals name="status_count">
