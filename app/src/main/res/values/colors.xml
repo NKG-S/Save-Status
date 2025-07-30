@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Material Design 3 Palette Colors (Light Theme) -->
-    <color name="md_theme_primary">#002E2A</color>
+    <color name="md_theme_primary">#075E54</color>
     <color name="background">#FFFFFF</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
     <color name="md_theme_primaryContainer">#337669</color>
@@ -27,6 +27,7 @@
     <color name="md_theme_surfaceContainerHighest">#E3E3E3</color>
     <color name="md_theme_outline">#6F7977</color>
     <color name="md_theme_outlineVariant">#BFC9C6</color>
+
 
     <!-- Core Theme Colors for Background and Text -->
     <color name="md_theme_background">#FBFDFB</color> <!-- Light background -->
