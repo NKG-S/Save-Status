@@ -64,6 +64,9 @@
     <color name="action_card_background">#FFFFFF</color>
     <color name="action_card_background_dark">#1E1E1E</color>
 
+
+    <color name="design_default_color_primary">#075e54</color>
+
     <!-- Toolbar Colors -->
     <color name="toolbar_icon_color">#FFFFFF</color>
     <color name="toolbar_text_color">#FFFFFF</color>

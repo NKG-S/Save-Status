@@ -85,7 +85,7 @@ class SaveAll : AppCompatActivity() {
         sharedPreferences.registerOnSharedPreferenceChangeListener(prefListener)
         loadMedia(currentMediaType())
     }
-    
+
 
     private fun initViews() {
         recyclerView = findViewById(R.id.recycler_view_saved)
@@ -697,6 +697,7 @@ class SaveAll : AppCompatActivity() {
         }
     }
 
+    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
     override fun onBackPressed() {
         if (actionMode != null) {
             actionMode?.finish()

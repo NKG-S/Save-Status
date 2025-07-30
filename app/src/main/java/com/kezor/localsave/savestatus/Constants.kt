@@ -29,6 +29,6 @@ object Constants {
     const val KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH = "/Android/media/com.kezor/.Auto_Save_All_Status" //default save location of auto save all
 
     const val KEY_SAVE_FOLDER_PATH = "/Android/media/com.kezor" //default save location
-    const val KEY_AUTO_SAVE_STATUSES = "auto_save_all_statuses"
-    const val APP_SAVE_SUBDIRECTORY_NAME = "SaveStatus" //default save sub folder name
+    const val APP_SAVE_SUBDIRECTORY_NAME = "SaveStatus" // sub folder
+    const val KEY_AUTO_SAVE_STATUSES = "auto_save_all_statuses" //default save sub folder name
 }
