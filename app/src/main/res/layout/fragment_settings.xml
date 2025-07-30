@@ -77,24 +77,21 @@
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Light"
-                        app:chipIcon="@drawable/ic_light_mode" />
+                        android:text="Light"/>
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_dark_mode"
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Dark"
-                        app:chipIcon="@drawable/ic_dark_mode" />
+                        android:text="Dark"/>
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_system_default"
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="System"
-                        app:chipIcon="@drawable/ic_auto_mode" />
+                        android:text="System"/>
                 </com.google.android.material.chip.ChipGroup>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -151,7 +148,7 @@
                     <com.google.android.material.imageview.ShapeableImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_folder_open_outlined"
+                        android:src="@android:drawable/ic_media_play"
                         android:layout_marginEnd="16dp"
                         app:tint="?attr/colorOnSurfaceVariant" />
 
@@ -198,7 +195,7 @@
                     <com.google.android.material.imageview.ShapeableImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_save_outlined"
+                        android:src="@android:drawable/stat_sys_download"
                         android:layout_marginEnd="16dp"
                         app:tint="?attr/colorOnSurfaceVariant" />
 
@@ -290,7 +287,7 @@
                     <com.google.android.material.imageview.ShapeableImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_delete"
+                        android:src="@android:drawable/ic_menu_delete"
                         android:layout_marginEnd="16dp"
                         app:tint="?attr/colorError" />
 
@@ -349,7 +346,7 @@
                     <com.google.android.material.imageview.ShapeableImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_info_outlined"
+                        android:src="@android:drawable/ic_menu_info_details"
                         android:layout_marginEnd="12dp"
                         app:tint="?attr/colorPrimary" />
 
@@ -376,7 +373,7 @@
                     <com.google.android.material.imageview.ShapeableImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_star_outlined"
+                        android:src="@android:drawable/btn_star"
                         android:layout_marginEnd="16dp"
                         app:tint="?attr/colorOnSurfaceVariant" />
 
@@ -409,7 +406,7 @@
                     <com.google.android.material.imageview.ShapeableImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_privacy"
+                        android:src="@android:drawable/ic_delete"
                         android:layout_marginEnd="16dp"
                         app:tint="?attr/colorOnSurfaceVariant" />
 
@@ -442,7 +439,7 @@
                     <com.google.android.material.imageview.ShapeableImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_share"
+                        android:src="@android:drawable/ic_menu_share"
                         android:layout_marginEnd="16dp"
                         app:tint="?attr/colorOnSurfaceVariant" />
 
@@ -457,7 +454,7 @@
                     <com.google.android.material.imageview.ShapeableImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
-                        android:src="@drawable/ic_share_variant"
+                        android:src="@android:drawable/ic_menu_share"
                         app:tint="?attr/colorOnSurfaceVariant" />
                 </LinearLayout>
 

@@ -6,7 +6,7 @@
     tools:ignore="UseAppTint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/video_background"
+    android:background="@android:color/transparent"
     android:fitsSystemWindows="true"
     tools:context=".MediaViewerFragment">
 
@@ -24,7 +24,7 @@
         app:resize_mode="fit"
         app:time_bar_min_update_interval="1000"
         app:show_timeout="1000"
-        android:background="@color/video_surface_background" />
+        android:background="@android:color/transparent"/>
 
     <!-- Enhanced Top App Bar - same structure, better styling -->
     <com.google.android.material.appbar.AppBarLayout
@@ -32,6 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="0dp"
+        android:background="@android:color/transparent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -40,7 +41,7 @@
             android:id="@+id/top_app_bar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_arrow_back_outlined"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:navigationContentDescription="@string/cd_back_button"
             app:navigationIconTint="@color/toolbar_icon_color"
             app:titleTextColor="@color/toolbar_text_color"
@@ -122,7 +123,7 @@
                     android:text="@string/status_save_button"
                     android:textColor="@color/button_text_color"
                     android:textSize="14sp"
-                    app:icon="@drawable/ic_save_outlined"
+                    app:icon="@android:drawable/stat_sys_download"
                     app:iconTint="@color/button_icon_color"
                     app:iconSize="18dp"
                     app:cornerRadius="12dp"
@@ -140,7 +141,7 @@
                     android:text="@string/saved_share_button"
                     android:textColor="@color/button_outline_text_color"
                     android:textSize="14sp"
-                    app:icon="@drawable/ic_share"
+                    app:icon="@android:drawable/ic_menu_share"
                     app:iconTint="@color/button_outline_icon_color"
                     app:iconSize="18dp"
                     app:cornerRadius="12dp"

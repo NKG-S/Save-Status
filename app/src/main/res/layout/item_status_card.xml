@@ -13,7 +13,7 @@
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
     app:strokeWidth="0dp"
-    android:backgroundTint="?attr/colorSurfaceVariant">
+    android:backgroundTint="@android:color/transparent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -28,19 +28,17 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.ExtraLarge"
             android:contentDescription="@string/cd_media_thumbnail"
-            tools:src="@tools:sample/backgrounds/scenic" />
+            tools:src="@tools:sample/backgrounds/scenic"/>
 
-        <!-- Play icon for videos -->
         <ImageView
             android:id="@+id/icon_play"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:alpha="0.8"
             android:contentDescription="@string/cd_play_pause_button"
-            android:src="@drawable/ic_play_circle_filled_24"
-            android:tint="?attr/colorOnSurface"
+            android:src="@android:drawable/ic_media_play"
+            android:tint="@android:color/white"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/image_thumbnail"
             app:layout_constraintEnd_toEndOf="@id/image_thumbnail"
@@ -48,12 +46,11 @@
             app:layout_constraintTop_toTopOf="@id/image_thumbnail"
             tools:visibility="visible" />
 
-        <!-- Overlay for selection mode -->
         <View
             android:id="@+id/image_view_selected_overlay"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@color/overlay_background_dark"
+            android:background="@android:color/transparent"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -61,7 +58,6 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:visibility="visible" />
 
-        <!-- Checkbox for selection mode -->
         <CheckBox
             android:id="@+id/checkbox_select"
             android:layout_width="wrap_content"
