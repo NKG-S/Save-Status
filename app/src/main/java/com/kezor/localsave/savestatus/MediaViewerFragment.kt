@@ -77,9 +77,7 @@ class MediaViewerFragment : Fragment() {
     // Optimized handlers and runnables
     private val controlsHandler = Handler(Looper.getMainLooper())
     private val hideControlsRunnable = Runnable {
-        videoBinding?.videoPlayerView?.hideController()
-        videoBinding?.appBarLayout?.visibility = View.VISIBLE
-        videoBinding?.actionBarContainer?.visibility = View.VISIBLE
+        hideAllControlsCompletely()
     }
 
     private lateinit var gestureDetector: GestureDetector
@@ -388,22 +386,52 @@ class MediaViewerFragment : Fragment() {
     private fun createControllerVisibilityListener() = object : StyledPlayerView.ControllerVisibilityListener {
         override fun onVisibilityChanged(visibility: Int) {
             try {
-                val controlsLayout = videoBinding?.videoPlayerView?.findViewById<LinearLayout>(R.id.controls_layout)
-
                 if (visibility == View.VISIBLE) {
-                    videoBinding?.appBarLayout?.visibility = View.GONE
-                    videoBinding?.actionBarContainer?.visibility = View.GONE
-                    controlsLayout?.visibility = View.VISIBLE
+                    // Show all controls immediately
+                    showAllControlsImmediately()
+                    // Remove any pending hide operations
                     controlsHandler.removeCallbacks(hideControlsRunnable)
+                    // Schedule hide after delay
                     controlsHandler.postDelayed(hideControlsRunnable, CONTROLS_HIDE_DELAY)
                 } else {
-                    videoBinding?.appBarLayout?.visibility = View.VISIBLE
-                    videoBinding?.actionBarContainer?.visibility = View.VISIBLE
-                    controlsLayout?.visibility = View.GONE
+                    // Hide all controls immediately when ExoPlayer controller is hidden
+                    hideAllControlsCompletely()
                 }
             } catch (e: Exception) {
                 Log.e("MediaViewer", "Error in controller visibility listener", e)
             }
+        }
+    }
+
+    private fun showAllControlsImmediately() {
+        try {
+            videoBinding?.apply {
+                appBarLayout.visibility = View.GONE
+                actionBarContainer.visibility = View.GONE
+
+                // Show the built-in ExoPlayer controls including progress bar
+                videoPlayerView.findViewById<LinearLayout>(R.id.controls_layout)?.visibility = View.VISIBLE
+            }
+        } catch (e: Exception) {
+            Log.e("MediaViewer", "Error showing all controls", e)
+        }
+    }
+
+    private fun hideAllControlsCompletely() {
+        try {
+            videoBinding?.apply {
+                // Hide ExoPlayer's built-in controller first
+                videoPlayerView.hideController()
+
+                // Hide our custom controls
+                appBarLayout.visibility = View.VISIBLE
+                actionBarContainer.visibility = View.VISIBLE
+
+                // Ensure the progress bar and all controls are hidden
+                videoPlayerView.findViewById<LinearLayout>(R.id.controls_layout)?.visibility = View.GONE
+            }
+        } catch (e: Exception) {
+            Log.e("MediaViewer", "Error hiding all controls", e)
         }
     }
 
