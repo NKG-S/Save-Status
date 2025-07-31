@@ -40,7 +40,7 @@ class SettingsFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         return binding.root
@@ -468,7 +468,7 @@ class SettingsFragment : Fragment() {
             val encodedMessage = URLEncoder.encode(defaultMessage, "UTF-8")
 
             val whatsappNumber = getString(R.string.whatsapp_number)
-            val whatsappUri = Uri.parse("http://wa.me/$whatsappNumber?text=$encodedMessage")
+            val whatsappUri = "http://wa.me/$whatsappNumber?text=$encodedMessage".toUri()
             val intent = Intent(Intent.ACTION_VIEW, whatsappUri)
 
             val isWhatsAppInstalled = isPackageInstalled("com.whatsapp")
