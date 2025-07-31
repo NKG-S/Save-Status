@@ -20,6 +20,8 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
@@ -40,14 +42,30 @@ class SavedFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var savedAdapter: StatusAdapter
     internal var currentMediaType: String = Constants.MEDIA_TYPE_IMAGE
+    private var currentTabIndex: Int = 0
     private var actionMode: ActionMode? = null
     private val selectedItems = mutableSetOf<MediaItem>()
     private var currentMediaList: List<MediaItem> = emptyList()
     private lateinit var sharedPreferences: SharedPreferences
 
+    companion object {
+        private const val KEY_CURRENT_TAB_INDEX = "current_tab_index"
+        private const val KEY_CURRENT_MEDIA_TYPE = "current_media_type"
+    }
+
     private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if (key == Constants.KEY_SAVE_FOLDER_URI) {
             loadMedia(currentMediaType)
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Restore tab state if available
+        savedInstanceState?.let {
+            currentTabIndex = it.getInt(KEY_CURRENT_TAB_INDEX, 0)
+            currentMediaType = it.getString(KEY_CURRENT_MEDIA_TYPE, Constants.MEDIA_TYPE_IMAGE)
         }
     }
 
@@ -63,12 +81,50 @@ class SavedFragment : Fragment() {
         setupRecyclerView()
         setupTabLayout()
         setupSwipeRefresh()
+
+        // Restore tab selection
+        restoreTabSelection()
+
         loadMedia(currentMediaType)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_CURRENT_TAB_INDEX, currentTabIndex)
+        outState.putString(KEY_CURRENT_MEDIA_TYPE, currentMediaType)
     }
 
     override fun onResume() {
         super.onResume()
         sharedPreferences.registerOnSharedPreferenceChangeListener(prefListener)
+
+        // Check if we're returning from MediaViewer with tab restoration data
+        val navController = findNavController()
+        val backStackEntry = navController.currentBackStackEntry
+        val savedStateHandle = backStackEntry?.savedStateHandle
+
+        savedStateHandle?.get<Int>("restore_tab_index")?.let { tabIndex ->
+            if (tabIndex != currentTabIndex) {
+                currentTabIndex = tabIndex
+                currentMediaType = when (tabIndex) {
+                    0 -> Constants.MEDIA_TYPE_IMAGE
+                    1 -> Constants.MEDIA_TYPE_VIDEO
+                    else -> Constants.MEDIA_TYPE_IMAGE
+                }
+
+                // Update tab selection without triggering the listener
+                binding.tabLayout.removeOnTabSelectedListener(tabSelectedListener)
+                binding.tabLayout.selectTab(binding.tabLayout.getTabAt(currentTabIndex))
+                binding.tabLayout.addOnTabSelectedListener(tabSelectedListener)
+
+                // Reload media for the restored tab
+                loadMedia(currentMediaType)
+            }
+
+            // Clear the restoration data
+            savedStateHandle.remove<Int>("restore_tab_index")
+        }
+
         loadMedia(currentMediaType)
     }
 
@@ -83,9 +139,16 @@ class SavedFragment : Fragment() {
         _binding = null
     }
 
+    private fun restoreTabSelection() {
+        // Set the tab selection without triggering the listener initially
+        binding.tabLayout.selectTab(binding.tabLayout.getTabAt(currentTabIndex))
+    }
+
     private fun setupToolbar() {
         // Toolbar setup
     }
+
+    // In SavedFragment.kt, around line 158-166, replace the navigation call with:
 
     private fun setupRecyclerView() {
         savedAdapter = StatusAdapter(
@@ -94,7 +157,10 @@ class SavedFragment : Fragment() {
                     toggleSelection(mediaItem, position)
                 } else {
                     val action = SavedFragmentDirections.actionNavigationSavedToMediaViewerFragment(
-                        mediaItem, currentMediaList.toTypedArray(), position, true
+                        mediaItem,
+                        currentMediaList.toTypedArray(),
+                        position,
+                        true  // isFromSavedSection
                     )
                     findNavController().navigate(action)
                 }
@@ -121,21 +187,29 @@ class SavedFragment : Fragment() {
         }
     }
 
+    private val tabSelectedListener = object : TabLayout.OnTabSelectedListener {
+        override fun onTabSelected(tab: TabLayout.Tab?) {
+            currentTabIndex = tab?.position ?: 0
+            currentMediaType = when (currentTabIndex) {
+                0 -> Constants.MEDIA_TYPE_IMAGE
+                1 -> Constants.MEDIA_TYPE_VIDEO
+                else -> Constants.MEDIA_TYPE_IMAGE
+            }
+
+            // Save current tab index to SharedPreferences
+            val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            prefs.edit().putInt("current_tab_index", currentTabIndex).apply()
+
+            loadMedia(currentMediaType)
+        }
+        override fun onTabUnselected(tab: TabLayout.Tab?) {}
+        override fun onTabReselected(tab: TabLayout.Tab?) {
+            loadMedia(currentMediaType)
+        }
+    }
+
     private fun setupTabLayout() {
-        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                currentMediaType = when (tab?.position) {
-                    0 -> Constants.MEDIA_TYPE_IMAGE
-                    1 -> Constants.MEDIA_TYPE_VIDEO
-                    else -> Constants.MEDIA_TYPE_IMAGE
-                }
-                loadMedia(currentMediaType)
-            }
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-                loadMedia(currentMediaType)
-            }
-        })
+        binding.tabLayout.addOnTabSelectedListener(tabSelectedListener)
     }
 
     private fun setupSwipeRefresh() {

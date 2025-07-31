@@ -63,6 +63,7 @@ import kotlin.math.abs
 
 class MediaViewerFragment : Fragment() {
 
+
     private val args: MediaViewerFragmentArgs by navArgs()
     private var imageBinding: FragmentImageViewerBinding? = null
     private var videoBinding: FragmentVideoPlayerBinding? = null
@@ -73,6 +74,9 @@ class MediaViewerFragment : Fragment() {
     private var playbackPosition = 0L
     private lateinit var mediaList: Array<MediaItem>
     private var currentIndex: Int = 0
+    private var currentTabIndex: Int = 0  // Move this line up to here
+    private var isFromSavedSection: Boolean = false
+    private lateinit var sharedPreferences: SharedPreferences
 
     // Optimized handlers and runnables
     private val controlsHandler = Handler(Looper.getMainLooper())
@@ -81,8 +85,6 @@ class MediaViewerFragment : Fragment() {
     }
 
     private lateinit var gestureDetector: GestureDetector
-    private var isFromSavedSection: Boolean = false
-    private lateinit var sharedPreferences: SharedPreferences
 
     // Performance optimizations
     private val fileHashCache = ConcurrentHashMap<String, String>()
@@ -116,8 +118,11 @@ class MediaViewerFragment : Fragment() {
         try {
             mediaList = args.mediaList
             currentIndex = args.currentIndex
-            isFromSavedSection = arguments?.getBoolean("isFromSavedSection", false) ?: false
+            isFromSavedSection = args.isSavedMedia // Use the correct parameter name
             sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+
+            // Get current tab index from SharedPreferences
+            currentTabIndex = sharedPreferences.getInt("current_tab_index", 0)
 
             if (!isFromSavedSection) {
                 val savedFolderPath = getSavedFolderPath()
@@ -348,7 +353,7 @@ class MediaViewerFragment : Fragment() {
             videoBinding?.apply {
                 topAppBar.setNavigationOnClickListener {
                     try {
-                        findNavController().navigateUp()
+                        navigateBackWithTabRestoration()
                     } catch (e: Exception) {
                         Log.e("MediaViewer", "Error navigating up", e)
                     }
@@ -369,7 +374,7 @@ class MediaViewerFragment : Fragment() {
             imageBinding?.apply {
                 topAppBar.setNavigationOnClickListener {
                     try {
-                        findNavController().navigateUp()
+                        navigateBackWithTabRestoration()
                     } catch (e: Exception) {
                         Log.e("MediaViewer", "Error navigating up", e)
                     }
@@ -380,6 +385,21 @@ class MediaViewerFragment : Fragment() {
             }
         } catch (e: Exception) {
             Log.e("MediaViewer", "Error setting up image UI", e)
+        }
+    }
+
+    private fun navigateBackWithTabRestoration() {
+        try {
+            val navController = findNavController()
+            val previousBackStackEntry = navController.previousBackStackEntry
+
+            // Pass the current tab index back to the previous fragment
+            previousBackStackEntry?.savedStateHandle?.set("restore_tab_index", currentTabIndex)
+
+            navController.navigateUp()
+        } catch (e: Exception) {
+            Log.e("MediaViewer", "Error in navigateBackWithTabRestoration", e)
+            findNavController().navigateUp()
         }
     }
 

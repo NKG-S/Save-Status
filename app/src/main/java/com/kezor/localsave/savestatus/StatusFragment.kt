@@ -1,10 +1,14 @@
+@file:Suppress("DEPRECATION")
+
 package com.kezor.localsave.savestatus // Standardized package name
 
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -23,9 +27,25 @@ class StatusFragment : Fragment() {
 
     private lateinit var statusAdapter: StatusAdapter
     private var currentMediaType: String = Constants.MEDIA_TYPE_IMAGE
+    private var currentTabIndex: Int = 0
 
     // This will hold the current list of media items displayed in the RecyclerView
     private var currentMediaList: List<MediaItem> = emptyList()
+
+    companion object {
+        private const val KEY_CURRENT_TAB_INDEX = "current_tab_index"
+        private const val KEY_CURRENT_MEDIA_TYPE = "current_media_type"
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Restore tab state if available
+        savedInstanceState?.let {
+            currentTabIndex = it.getInt(KEY_CURRENT_TAB_INDEX, 0)
+            currentMediaType = it.getString(KEY_CURRENT_MEDIA_TYPE, Constants.MEDIA_TYPE_IMAGE)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,19 +62,66 @@ class StatusFragment : Fragment() {
         setupTabLayout()
         setupSwipeRefresh()
 
+        // Restore tab selection
+        restoreTabSelection()
+
         // Load initial data
         loadMedia(currentMediaType)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_CURRENT_TAB_INDEX, currentTabIndex)
+        outState.putString(KEY_CURRENT_MEDIA_TYPE, currentMediaType)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // Check if we're returning from MediaViewer with tab restoration data
+        val navController = findNavController()
+        val backStackEntry = navController.currentBackStackEntry
+        val savedStateHandle = backStackEntry?.savedStateHandle
+
+        savedStateHandle?.get<Int>("restore_tab_index")?.let { tabIndex ->
+            if (tabIndex != currentTabIndex) {
+                currentTabIndex = tabIndex
+                currentMediaType = when (tabIndex) {
+                    0 -> Constants.MEDIA_TYPE_IMAGE
+                    1 -> Constants.MEDIA_TYPE_VIDEO
+                    else -> Constants.MEDIA_TYPE_IMAGE
+                }
+
+                // Update tab selection without triggering the listener
+                binding.tabLayout.removeOnTabSelectedListener(tabSelectedListener)
+                binding.tabLayout.selectTab(binding.tabLayout.getTabAt(currentTabIndex))
+                binding.tabLayout.addOnTabSelectedListener(tabSelectedListener)
+
+                // Reload media for the restored tab
+                loadMedia(currentMediaType)
+            }
+
+            // Clear the restoration data
+            savedStateHandle.remove<Int>("restore_tab_index")
+        }
+    }
+
+    private fun restoreTabSelection() {
+        // Set the tab selection without triggering the listener initially
+        binding.tabLayout.selectTab(binding.tabLayout.getTabAt(currentTabIndex))
+    }
+
+    // In StatusFragment.kt, around line 110-120, replace the navigation call with:
+
     private fun setupRecyclerView() {
         statusAdapter = StatusAdapter(
             onItemClick = { mediaItem, position -> // This 'position' will now correctly be an Int
-                // Navigate to MediaViewerFragment
+                // Navigate to MediaViewerFragment - fix the action name
                 val action = StatusFragmentDirections.actionNavigationStatusToMediaViewerFragment(
                     mediaItem,
                     currentMediaList.toTypedArray(),
                     position,
-                    false
+                    false  // Remove the currentTabIndex parameter here too
                 )
                 findNavController().navigate(action)
             },
@@ -72,23 +139,29 @@ class StatusFragment : Fragment() {
         }
     }
 
-    private fun setupTabLayout() {
-        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                currentMediaType = when (tab?.position) {
-                    0 -> Constants.MEDIA_TYPE_IMAGE
-                    1 -> Constants.MEDIA_TYPE_VIDEO
-                    else -> Constants.MEDIA_TYPE_IMAGE
-                }
-                loadMedia(currentMediaType)
+    private val tabSelectedListener = object : TabLayout.OnTabSelectedListener {
+        override fun onTabSelected(tab: TabLayout.Tab?) {
+            currentTabIndex = tab?.position ?: 0
+            currentMediaType = when (currentTabIndex) {
+                0 -> Constants.MEDIA_TYPE_IMAGE
+                1 -> Constants.MEDIA_TYPE_VIDEO
+                else -> Constants.MEDIA_TYPE_IMAGE
             }
 
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-                // Reload data if the same tab is reselected
-                loadMedia(currentMediaType)
-            }
-        })
+            // Save current tab index to SharedPreferences
+            val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            prefs.edit().putInt("current_tab_index", currentTabIndex).apply()
+
+            loadMedia(currentMediaType)
+        }
+        override fun onTabUnselected(tab: TabLayout.Tab?) {}
+        override fun onTabReselected(tab: TabLayout.Tab?) {
+            loadMedia(currentMediaType)
+        }
+    }
+
+    private fun setupTabLayout() {
+        binding.tabLayout.addOnTabSelectedListener(tabSelectedListener)
     }
 
     private fun setupSwipeRefresh() {

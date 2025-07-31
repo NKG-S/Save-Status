@@ -21,9 +21,10 @@
         android:id="@+id/statusFragment"
         android:name="com.kezor.localsave.savestatus.StatusFragment"
         android:label="StatusFragment"
-        tools:layout="@layout/fragment_status"> <action
-        android:id="@+id/action_statusFragment_to_mediaViewerFragment"
-        app:destination="@id/mediaViewerFragment" />
+        tools:layout="@layout/fragment_status">
+        <action
+            android:id="@+id/action_statusFragment_to_mediaViewerFragment"
+            app:destination="@id/mediaViewerFragment" />
         <action
             android:id="@+id/action_statusFragment_to_savedFragment"
             app:destination="@id/savedFragment" />
@@ -33,9 +34,10 @@
         android:id="@+id/savedFragment"
         android:name="com.kezor.localsave.savestatus.SavedFragment"
         android:label="SavedFragment"
-        tools:layout="@layout/fragment_saved"> <action
-        android:id="@+id/action_navigation_saved_to_mediaViewerFragment"
-        app:destination="@id/mediaViewerFragment" />
+        tools:layout="@layout/fragment_saved">
+        <action
+            android:id="@+id/action_navigation_saved_to_mediaViewerFragment"
+            app:destination="@id/mediaViewerFragment" />
     </fragment>
 
     <fragment
@@ -51,6 +53,11 @@
         <argument
             android:name="isFromSavedSection"
             app:argType="boolean"
-            android:defaultValue="false" /> </fragment>
+            android:defaultValue="false" />
+        <argument
+            android:name="currentTabIndex"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
 
 </navigation>
