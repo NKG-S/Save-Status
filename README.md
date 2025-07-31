@@ -9,14 +9,14 @@ This Android application provides a robust and user-centric solution for the com
 To facilitate a visual comprehension of the application's interface and functionality, a series of screenshots has been provided below. It is imperative that these placeholder image paths be replaced with authentic visual captures from the operational application. Users are advised to establish a directory named `screenshots` within the root of their GitHub repository and populate it with relevant `.png` or `.jpg` image files.
 
 <p align="center">
-<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Permission%20Request.jpg" alt="permission Screen" width="125"/>
-<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Status%20List%20Screen.jpg" alt="Status List Screen" width="125"/>
-<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Saved%20List%20Screen.jpg" alt="Saved List Screen" width="125"/>
-<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Media%20Viewer%20Screen%20(Image%20Viewer).jpg" alt="Media Viewer Screen (Image view)" width="125"/>
-<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Media%20Viewer%20Screen%20(Video%20player).jpg" alt="Media Viewer Screen (Video view)" width="125"/>
-<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Saved%20List%20Screen%20(Save%20All).jpg" alt="Saved All Status List Screen" width="125"/>
-<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Settings%20Screen%20(Dark%20theme).jpg" alt="Settings Screen (Dark Theme)" width="125"/>
-<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Settings%20Screen%20(Light%20theme).jpg" alt="Settings Screen (Light Theme)" width="125"/>
+<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Permission%20Request.jpg" alt="permission Screen" width="250"/>
+<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Status%20List%20Screen.jpg" alt="Status List Screen" width="250"/>
+<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Saved%20List%20Screen.jpg" alt="Saved List Screen" width="250"/>
+<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Media%20Viewer%20Screen%20(Image%20Viewer).jpg" alt="Media Viewer Screen (Image view)" width="250"/>
+<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Media%20Viewer%20Screen%20(Video%20player).jpg" alt="Media Viewer Screen (Video view)" width="250"/>
+<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Saved%20List%20Screen%20(Save%20All).jpg" alt="Saved All Status List Screen" width="250"/>
+<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Settings%20Screen%20(Dark%20theme).jpg" alt="Settings Screen (Dark Theme)" width="250"/>
+<img src="https://github.com/NKG-S/Save-Status/blob/main/Screenshots/Settings%20Screen%20(Light%20theme).jpg" alt="Settings Screen (Light Theme)" width="250"/>
 </p>
 
 ## ✨ Features
