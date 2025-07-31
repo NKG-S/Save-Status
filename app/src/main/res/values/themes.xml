@@ -33,11 +33,6 @@
         <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
         <item name="colorOutline">@color/md_theme_outline</item>
         <item name="colorOutlineVariant">@color/md_theme_outlineVariant</item>
-
-<!--        <item name="colorInverseSurface">@color/md_theme_inverseSurface</item>-->
-<!--        <item name="colorInverseOnSurface">@color/md_theme_inverseOnSurface</item>-->
-<!--        <item name="colorInversePrimary">@color/md_theme_inversePrimary</item>-->
-<!--        <item name="colorSurfaceTint">@color/md_theme_surfaceTint</item>-->
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>

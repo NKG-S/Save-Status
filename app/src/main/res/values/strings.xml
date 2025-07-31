@@ -3,21 +3,12 @@
     <!-- App Name -->
     <string name="app_name">SaveStatus</string>
 
-    <string name="cd_permission_icon">Permission icon</string>
-
-    <!-- Navigation -->
-    <string name="navigation_home">Home</string>
-    <string name="navigation_saved">Saved</string>
-    <string name="navigation_settings">Settings</string>
-
     <!-- Permissions -->
     <string name="permission_required_title">Storage Permission Required</string>
     <string name="permission_required_message">This app needs storage permission to save WhatsApp status files. Please grant permission to continue.</string>
     <string name="permission_grant_button">Grant Permission</string>
     <string name="permission_denied_message">Storage permission is required for the app to function properly.</string>
-
-    <!-- Settings Screen -->
-    <string name="settings_title">Settings</string>
+    <string name="cd_permission_icon">Permission icon</string>
 
     <!-- Theme Settings -->
     <string name="settings_section_theme">Theme</string>
@@ -46,203 +37,10 @@
     <string name="settings_app_version">App Version</string>
     <string name="settings_app_version_placeholder">Version %1$s</string>
 
-    <!-- Dialog Messages -->
-    <string name="settings_clear_all_dialog_title">Clear All Saved Statuses</string>
-    <string name="settings_clear_all_dialog_message">Are you sure you want to delete all saved statuses? This action cannot be undone.</string>
-
-    <!-- Status Related -->
-    <string name="status_image">Image Status</string>
-    <string name="status_video">Video Status</string>
-    <string name="status_saved">Status saved successfully</string>
-    <string name="status_save_failed">Failed to save status</string>
-    <string name="status_already_saved">Status already saved</string>
-    <string name="status_deleted">Status deleted</string>
-    <string name="status_delete_failed">Failed to delete status</string>
-
-    <!-- Media Viewer -->
-    <string name="media_viewer_title">Media Viewer</string>
-    <string name="media_save_button">Save</string>
-    <string name="media_share_button">Share</string>
-    <string name="media_delete_button">Delete</string>
-    <string name="media_info_button">Info</string>
-
-    <!-- Home Screen -->
-    <string name="home_title">WhatsApp Status Saver</string>
-    <string name="home_recent_statuses">Recent Statuses</string>
-    <string name="home_no_statuses">No statuses found</string>
-    <string name="home_refresh">Refresh</string>
-    <string name="home_whatsapp_not_installed">WhatsApp is not installed</string>
-    <string name="home_no_statuses_message">No WhatsApp statuses found. Make sure you have viewed some statuses in WhatsApp.</string>
-
-    <!-- Saved Screen -->
-    <string name="saved_title">Saved Statuses</string>
-    <string name="saved_no_items">No saved statuses</string>
-    <string name="saved_no_items_message">You haven\'t saved any statuses yet. Saved statuses will appear here.</string>
-    <string name="saved_delete_confirm">Delete</string>
-    <string name="saved_delete_cancel">Cancel</string>
-    <string name="saved_delete_dialog_title">Delete Status</string>
-    <string name="saved_delete_dialog_message">Are you sure you want to delete this status?</string>
-    <string name="saved_items_count">%1$d items</string>
-    <string name="saved_select_all">Select All</string>
-    <string name="saved_deselect_all">Deselect All</string>
-    <string name="saved_delete_selected">Delete Selected</string>
-
-    <!-- Search -->
-    <string name="search_hint">Search statuses</string>
-    <string name="search_no_results">No results found</string>
-
-    <!-- Share -->
-    <string name="share_status_title">Share Status</string>
-    <string name="share_app_title">Share SaveStatus App</string>
-    <string name="share_app_message">Check out SaveStatus - the best app for saving WhatsApp statuses!\nDownload: https://play.google.com/store/apps/details?id=%1$s</string>
-
-    <!-- Error Messages -->
-    <string name="error_general">Something went wrong</string>
-    <string name="error_no_internet">No internet connection</string>
-    <string name="error_file_not_found">File not found</string>
-    <string name="error_permission_denied">Permission denied</string>
-    <string name="error_storage_full">Storage is full</string>
-    <string name="error_invalid_file">Invalid file format</string>
-
-    <!-- Success Messages -->
-    <string name="success_saved">Saved successfully</string>
-    <string name="success_shared">Shared successfully</string>
-    <string name="success_deleted">Deleted successfully</string>
-    <string name="success_copied">Copied to clipboard</string>
-
-    <!-- Loading -->
-    <string name="loading">Loading...</string>
-    <string name="loading_statuses">Loading statuses...</string>
-    <string name="refreshing">Refreshing...</string>
-
-    <!-- File Info -->
-    <string name="file_info_title">File Information</string>
-    <string name="file_info_name">Name</string>
-    <string name="file_info_size">Size</string>
-    <string name="file_info_date">Date</string>
-    <string name="file_info_type">Type</string>
-    <string name="file_info_path">Path</string>
-    <string name="file_info_duration">Duration</string>
-    <string name="file_info_resolution">Resolution</string>
-
-    <!-- Time Formats -->
-    <string name="time_now">Now</string>
-    <string name="time_minutes_ago">%1$d minutes ago</string>
-    <string name="time_hours_ago">%1$d hours ago</string>
-    <string name="time_days_ago">%1$d days ago</string>
-    <string name="time_yesterday">Yesterday</string>
-    <string name="time_today">Today</string>
-
-    <!-- File Sizes -->
-    <string name="file_size_bytes">%1$d B</string>
-    <string name="file_size_kb">%1$.1f KB</string>
-    <string name="file_size_mb">%1$.1f MB</string>
-    <string name="file_size_gb">%1$.1f GB</string>
-
-    <!-- Actions -->
-    <string name="action_save">Save</string>
-    <string name="action_share">Share</string>
-    <string name="action_delete">Delete</string>
-    <string name="action_copy">Copy</string>
-    <string name="action_edit">Edit</string>
-    <string name="action_info">Info</string>
-    <string name="action_refresh">Refresh</string>
-    <string name="action_search">Search</string>
-    <string name="action_select">Select</string>
-    <string name="action_cancel">Cancel</string>
-    <string name="action_ok">OK</string>
-    <string name="action_yes">Yes</string>
-    <string name="action_no">No</string>
-    <string name="action_retry">Retry</string>
-    <string name="action_close">Close</string>
-    <string name="action_back">Back</string>
-    <string name="action_next">Next</string>
-    <string name="action_previous">Previous</string>
-    <string name="action_play">Play</string>
-    <string name="action_pause">Pause</string>
-    <string name="action_stop">Stop</string>
-
-    <!-- Generic Messages -->
-    <string name="coming_soon">Coming soon</string>
-    <string name="feature_not_available">This feature is not available yet</string>
-    <string name="please_wait">Please wait...</string>
-    <string name="processing">Processing...</string>
-    <string name="done">Done</string>
-    <string name="complete">Complete</string>
-    <string name="failed">Failed</string>
-    <string name="unavailable">Unavailable</string>
-    <string name="unknown">Unknown</string>
-    <string name="none">None</string>
-    <string name="all">All</string>
-    <string name="selected">Selected</string>
-    <string name="total">Total</string>
-
-    <!-- Developer Info -->
-    <string name="developer_name">Kezor Technologies</string>
-    <string name="developer_email">developer@kezor.com</string>
-    <string name="developer_website">https://kezor.com</string>
-
-    <!-- Legal -->
-    <string name="privacy_policy_url">https://your-website.com/privacy-policy</string>
-    <string name="terms_of_service_url">https://your-website.com/terms</string>
-
-    <!-- Notifications -->
-    <string name="notification_channel_name">SaveStatus</string>
-    <string name="notification_channel_description">Status saving notifications</string>
-    <string name="notification_saving_status">Saving status...</string>
-    <string name="notification_status_saved">Status saved successfully</string>
-
-    <!-- Menu Items -->
-    <string name="menu_settings">Settings</string>
-    <string name="menu_about">About</string>
-    <string name="menu_help">Help</string>
-    <string name="menu_rate">Rate App</string>
-    <string name="menu_share_app">Share App</string>
-
-    <!-- About Screen -->
-    <string name="about_title">About</string>
-    <string name="about_app_description">SaveStatus is a powerful and easy-to-use app for saving WhatsApp status updates. Keep your favorite status videos and images forever!</string>
-    <string name="about_version">Version %1$s</string>
-    <string name="about_developer">Developed by %1$s</string>
-    <string name="about_copyright">© 2024 Kezor Technologies. All rights reserved.</string>
-
-    <!-- Backup & Restore -->
-    <string name="backup_title">Backup</string>
-    <string name="backup_create">Create Backup</string>
-    <string name="backup_restore">Restore Backup</string>
-    <string name="backup_success">Backup created successfully</string>
-    <string name="backup_failed">Backup failed</string>
-    <string name="restore_success">Backup restored successfully</string>
-    <string name="restore_failed">Restore failed</string>
-
-    <!-- Quality Settings -->
-    <string name="quality_original">Original</string>
-    <string name="quality_high">High</string>
-    <string name="quality_medium">Medium</string>
-    <string name="quality_low">Low</string>
-
-    <!-- Sort Options -->
-    <string name="sort_by_date">Date</string>
-    <string name="sort_by_name">Name</string>
-    <string name="sort_by_size">Size</string>
-    <string name="sort_by_type">Type</string>
-    <string name="sort_ascending">Ascending</string>
-    <string name="sort_descending">Descending</string>
-
-    <!-- Grid/List View -->
-    <string name="view_grid">Grid View</string>
-    <string name="view_list">List View</string>
-
-    <!-- Empty States -->
-    <string name="empty_recent_statuses">No recent statuses</string>
-    <string name="empty_saved_statuses">No saved statuses</string>
-    <string name="empty_search_results">No search results</string>
-
-
     <!-- Navigation and UI strings -->
     <string name="title_status">Status</string>
     <string name="title_saved">Saved</string>
-
+    <string name="title_settings">Settings</string>
     <string name="permission_go_to_settings_button">Go to Settings</string>
 
     <!-- Tab strings -->
@@ -252,10 +50,6 @@
     <!-- Message strings -->
     <string name="status_no_media_found">No media found</string>
     <string name="saved_no_media_found">No saved media found</string>
-
-
-    <!-- Bottom Navigation -->
-    <string name="title_settings">Settings</string>
 
     <!-- Selection Mode Menu -->
     <string name="cd_delete_button">Delete</string>
@@ -298,7 +92,6 @@
     <string name="developer_contact">demonkids1234@gmail.com</string>
     <string name="action_download">Save</string>
 
-
     <!-- Content Descriptions -->
     <string name="cd_video_icon">Video icon</string>
     <string name="cd_image_icon">Image icon</string>
@@ -314,32 +107,4 @@
 
     <string name="status_save_button">Save</string>
     <string name="saved_share_button">Share</string>
-
-    <!-- Plural Strings -->
-    <plurals name="status_count">
-        <item quantity="zero">No statuses</item>
-        <item quantity="one">%1$d status</item>
-        <item quantity="other">%1$d statuses</item>
-    </plurals>
-
-    <plurals name="selected_count">
-        <item quantity="zero">None selected</item>
-        <item quantity="one">%1$d selected</item>
-        <item quantity="other">%1$d selected</item>
-    </plurals>
-
-    <plurals name="minutes_ago">
-        <item quantity="one">1 minute ago</item>
-        <item quantity="other">%1$d minutes ago</item>
-    </plurals>
-
-    <plurals name="hours_ago">
-        <item quantity="one">1 hour ago</item>
-        <item quantity="other">%1$d hours ago</item>
-    </plurals>
-
-    <plurals name="days_ago">
-        <item quantity="one">1 day ago</item>
-        <item quantity="other">%1$d days ago</item>
-    </plurals>
 </resources>

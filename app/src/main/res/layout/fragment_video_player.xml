@@ -6,7 +6,7 @@
     tools:ignore="UseAppTint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
+    android:background="@color/md_theme_inverseOnSurface"
     android:fitsSystemWindows="true"
     tools:context=".MediaViewerFragment">
 
@@ -24,7 +24,7 @@
         app:resize_mode="fit"
         app:time_bar_min_update_interval="1000"
         app:show_timeout="1000"
-        android:background="@android:color/transparent"/>
+        android:background="@color/md_theme_inverseOnSurface"/>
 
     <!-- Enhanced Top App Bar - same structure, better styling -->
     <com.google.android.material.appbar.AppBarLayout
@@ -48,6 +48,7 @@
             app:titleTextAppearance="?attr/textAppearanceTitleLarge"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
+            android:paddingTop="8dp"
             android:background="@android:color/transparent" />
 
     </com.google.android.material.appbar.AppBarLayout>

@@ -21,7 +21,7 @@
     <color name="md_theme_onErrorContainer">#410002</color>
 
     <color name="md_theme_background">#FFFFFF</color> <color name="md_theme_onBackground">#191C1B</color> <color name="md_theme_surface">#FFFFFF</color> <color name="md_theme_onSurface">#191C1B</color> <color name="md_theme_surfaceVariant">#DBE5E1</color> <color name="md_theme_onSurfaceVariant">#3F4947</color> <color name="md_theme_inverseSurface">#2E3130</color>
-    <color name="md_theme_inverseOnSurface">#EFF1EF</color>
+    <color name="md_theme_inverseOnSurface">#2E3130</color>
 
     <color name="md_theme_shadow">#000000</color>
     <color name="md_theme_inversePrimary">#53DBCA</color>
