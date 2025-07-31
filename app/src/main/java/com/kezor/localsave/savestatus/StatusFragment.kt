@@ -2,13 +2,13 @@
 
 package com.kezor.localsave.savestatus // Standardized package name
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -140,6 +140,7 @@ class StatusFragment : Fragment() {
     }
 
     private val tabSelectedListener = object : TabLayout.OnTabSelectedListener {
+        @SuppressLint("UseKtx")
         override fun onTabSelected(tab: TabLayout.Tab?) {
             currentTabIndex = tab?.position ?: 0
             currentMediaType = when (currentTabIndex) {

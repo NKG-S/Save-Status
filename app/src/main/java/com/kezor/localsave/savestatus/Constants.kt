@@ -1,7 +1,6 @@
 package com.kezor.localsave.savestatus
 
 import android.os.Environment
-import java.io.File
 
 object Constants {
 

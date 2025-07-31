@@ -16,13 +16,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.kezor.localsave.savestatus.databinding.ActivityMainBinding
-import androidx.navigation.fragment.NavHostFragment // Import NavHostFragment
 
 class MainActivity : AppCompatActivity() {
 

@@ -16,7 +16,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
@@ -25,12 +24,11 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.kezor.localsave.savestatus.databinding.FragmentSettingsBinding
-import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
+import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.UUID
 import kotlin.jvm.java
 
 class SettingsFragment : Fragment() {
@@ -100,7 +98,7 @@ class SettingsFragment : Fragment() {
     private val autoSaveRunnable = object : Runnable {
         override fun run() {
             performAutoSaveIfEnabled(requireContext())
-            autoSaveHandler.postDelayed(this, 15 * 60 * 1000L) // Repeat every 15 minutes
+            autoSaveHandler.postDelayed(this, 15 * 60 * 1000L)
         }
     }
 
@@ -193,7 +191,7 @@ class SettingsFragment : Fragment() {
                 }
             }
         }
-        clearCopiedPrefs() // Clear tracking prefs on delete
+        clearCopiedPrefs()
     }
 
     @SuppressLint("UseKtx")
@@ -238,7 +236,6 @@ class SettingsFragment : Fragment() {
                             val destFileName = generateDeterministicFileName(file)
                             val destFile = File(autoSaveDir, destFileName)
 
-                            // Prevent duplicates by checking destination folder for the deterministic filename
                             if (!destFile.exists()) {
                                 try {
                                     file.copyTo(destFile)
@@ -248,7 +245,6 @@ class SettingsFragment : Fragment() {
                                     Log.e("AutoSave", "Failed to copy: ${file.name}", e)
                                 }
                             } else {
-                                // If file already exists, mark as copied anyway
                                 markFileAsCopied(file, prefs)
                             }
                         }
@@ -264,8 +260,6 @@ class SettingsFragment : Fragment() {
         val baseName = file.nameWithoutExtension
         return "${baseName}_$timestamp.${file.extension}"
     }
-
-
 
     @SuppressLint("SetTextI18n")
     private fun updateCurrentSavePathDisplay() {
@@ -343,13 +337,11 @@ class SettingsFragment : Fragment() {
                     if (canWriteToUri(uri)) {
                         sharedPreferences.edit {
                             putString(Constants.KEY_SAVE_FOLDER_URI, uri.toString())
-                            // Also store the path for non-SAF access
                             putString(Constants.KEY_SAVE_FOLDER_PATH,
                                 DocumentFile.fromTreeUri(requireContext(), uri)?.uri?.path ?: "")
                         }
                         showSnackbar("Save location updated successfully")
                         updateCurrentSavePathDisplay()
-                        // Notify other fragments about the change
                         (activity as? AppCompatActivity)?.supportFragmentManager?.fragments?.forEach {
                             if (it is SavedFragment) {
                                 it.loadMedia(it.currentMediaType)
@@ -420,17 +412,17 @@ class SettingsFragment : Fragment() {
     @SuppressLint("UseKtx", "QueryPermissionsNeeded")
     private fun openPrivacyPolicy() {
         try {
-            val privacyPolicyUrl = "https://your-website.com/privacy-policy"
+            // IMPORTANT: Replace this with your actual privacy policy URL
+            val privacyPolicyUrl = getString(R.string.Privacy_policy_url)
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(privacyPolicyUrl))
 
-            if (intent.resolveActivity(requireContext().packageManager) != null) {
-                startActivity(intent)
-            } else {
-                showSnackbar("No browser app found")
-            }
+            // The previous conditional check can sometimes fail. A more robust way is to try and
+            // start the activity, and catch the exception if no app is found.
+            startActivity(intent)
+
         } catch (e: Exception) {
             Log.e(TAG, "Error opening privacy policy", e)
-            showSnackbar("Unable to open privacy policy")
+            showSnackbar("No browser app found")
         }
     }
 
@@ -452,16 +444,60 @@ class SettingsFragment : Fragment() {
             showSnackbar("Unable to share app")
         }
     }
-
     private fun showDeveloperInfo() {
-        AlertDialog.Builder(requireContext()).setTitle(getString(R.string.developer_information))
-            .setMessage(getString(R.string.developer_information_message).trimIndent())
-            .setPositiveButton("Contact") { dialog, _ ->
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.developer_information))
+            .setMessage(getString(R.string.developer_information_message))
+            .setPositiveButton("WhatsApp") { _, _ ->
+                contactWhatsApp()
+            }
+            .setNeutralButton("Email") { _, _ ->
                 contactDeveloper()
-                dialog.dismiss()
             }
             .setNegativeButton("Close", null)
             .show()
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun contactWhatsApp() {
+        try {
+            val appName = getString(R.string.app_name)
+            val defaultMessage = getString(R.string.whatsapp_default_message, appName)
+
+            // URL-encode the message to handle spaces and special characters
+            val encodedMessage = URLEncoder.encode(defaultMessage, "UTF-8")
+
+            val whatsappNumber = getString(R.string.whatsapp_number)
+            val whatsappUri = Uri.parse("http://wa.me/$whatsappNumber?text=$encodedMessage")
+            val intent = Intent(Intent.ACTION_VIEW, whatsappUri)
+
+            val isWhatsAppInstalled = isPackageInstalled("com.whatsapp")
+            val isWhatsAppBusinessInstalled = isPackageInstalled("com.whatsapp.w4b")
+
+            if (isWhatsAppInstalled) {
+                intent.setPackage("com.whatsapp")
+                startActivity(intent)
+            } else if (isWhatsAppBusinessInstalled) {
+                intent.setPackage("com.whatsapp.w4b")
+                startActivity(intent)
+            } else {
+                showSnackbar("WhatsApp is not installed on this device. Opening in browser...")
+                val webIntent = Intent(Intent.ACTION_VIEW, whatsappUri)
+                startActivity(webIntent)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening WhatsApp", e)
+            showSnackbar("Unable to open WhatsApp: ${e.localizedMessage}")
+        }
+    }
+
+    private fun isPackageInstalled(packageName: String): Boolean {
+        return try {
+            requireContext().packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
     }
 
     @SuppressLint("QueryPermissionsNeeded", "UseKtx")
@@ -471,7 +507,7 @@ class SettingsFragment : Fragment() {
             val subject = "User Feedback Of ${getString(R.string.app_name)}"
 
             val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse(recipient)
+                data = Uri.parse("mailto:$recipient")
                 putExtra(Intent.EXTRA_SUBJECT, subject)
             }
 
@@ -480,7 +516,7 @@ class SettingsFragment : Fragment() {
             } else {
                 val fallbackEmailIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "message/rfc822"
-                    putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient.replace("mailto:", "")))
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
                     putExtra(Intent.EXTRA_SUBJECT, subject)
                 }
 

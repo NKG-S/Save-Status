@@ -87,10 +87,13 @@
     <string name="Clear_all_saved_statuses_dialog_box_title">Clear All Saved Statuses</string>
     <string name="Clear_all_saved_statuses_dialog_box_description">This will permanently delete all saved statuses.</string>
     <string name="cd_cansel_button">Cancel</string>
+
+    <!--developer information-->
     <string name="developer_information">Developer Information</string>
-    <string name="developer_information_message">Developer: Kezor Technologies\nEmail: demonkids1234@gmail.com\nWebsite: http://wa.me/94777678678\nThank you for using our app!\n</string>
+    <string name="developer_information_message">Developer: N.K.Gimhan\nThank you for using our app!</string>
+    <string name="whatsapp_default_message">*Hello,*\n*I\'m using %1$s App*\n*I have Something to tell you*\n\n</string>
     <string name="developer_contact">demonkids1234@gmail.com</string>
-    <string name="action_download">Save</string>
+    <string name="whatsapp_number">+94721663030</string>
 
     <!-- Content Descriptions -->
     <string name="cd_video_icon">Video icon</string>
@@ -107,4 +110,5 @@
 
     <string name="status_save_button">Save</string>
     <string name="saved_share_button">Share</string>
+    <string name="privacy_policy_url">https://your-website.com/privacy-policy</string>
 </resources>
