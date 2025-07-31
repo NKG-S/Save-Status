@@ -377,7 +377,7 @@ class SettingsFragment : Fragment() {
             } else {
                 false
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -409,20 +409,34 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    @SuppressLint("UseKtx", "QueryPermissionsNeeded")
+//    @SuppressLint("UseKtx", "QueryPermissionsNeeded")
+//    private fun openPrivacyPolicy() {
+//        try {
+//            // IMPORTANT: Replace this with your actual privacy policy URL
+//            val privacyPolicyUrl = getString(R.string.Privacy_policy_url)
+//            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(privacyPolicyUrl))
+//
+//            // The previous conditional check can sometimes fail. A more robust way is to try and
+//            // start the activity, and catch the exception if no app is found.
+//            startActivity(intent)
+//
+//        } catch (e: Exception) {
+//            Log.e(TAG, "Error opening privacy policy", e)
+//            showSnackbar("No browser app found")
+//        }
+//    }
+
     private fun openPrivacyPolicy() {
         try {
-            // IMPORTANT: Replace this with your actual privacy policy URL
-            val privacyPolicyUrl = getString(R.string.Privacy_policy_url)
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(privacyPolicyUrl))
+            // Create an explicit intent to open your PrivacyPolicy activity
+            val intent = Intent(requireContext(), PrivacyPolicy::class.java)
 
-            // The previous conditional check can sometimes fail. A more robust way is to try and
-            // start the activity, and catch the exception if no app is found.
+            // Start the activity
             startActivity(intent)
 
         } catch (e: Exception) {
-            Log.e(TAG, "Error opening privacy policy", e)
-            showSnackbar("No browser app found")
+            Log.e(TAG, "Error opening privacy policy activity", e)
+            showSnackbar("Unable to open privacy policy screen")
         }
     }
 
@@ -495,7 +509,7 @@ class SettingsFragment : Fragment() {
         return try {
             requireContext().packageManager.getPackageInfo(packageName, 0)
             true
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             false
         }
     }

@@ -110,5 +110,30 @@
 
     <string name="status_save_button">Save</string>
     <string name="saved_share_button">Share</string>
-    <string name="privacy_policy_url">https://your-website.com/privacy-policy</string>
+    <string name="privacy_policy_url">http://wa.me/+94721663030</string>
+
+
+    <string name="title_privacy_policy">Privacy Policy</string>
+    <string name="privacy_policy_text">
+        Privacy Policy\n\n
+        This privacy policy governs your use of the [Your App Name] mobile application ("Application") developed by [Your Name/Company Name].\n\n
+        User Provided Information\n
+        The Application does not obtain, collect, or store any personally identifiable information from you. We do not require you to provide any personal data such as your name, email address, phone number, or any other private information to use the Application.\n\n
+        Automatically Collected Information\n
+        The Application may collect non-personal, anonymous information to improve user experience. This includes usage data such as the features you access, the frequency of use, and device-specific data (e.g., operating system version, app version). This data is completely anonymous and cannot be used to identify you personally.\n\n
+        Data Retention Policy\n
+        We do not retain any user data. Any information collected is anonymous and used solely for the purpose of app improvement. Once the information is no longer needed for analytical purposes, it is discarded.\n\n
+        Permissions\n
+        To function, the Application requires the following permissions:\n
+        \u2022 READ_EXTERNAL_STORAGE and WRITE_EXTERNAL_STORAGE: These permissions are required to access WhatsApp status files and save them to your device’s storage.\n\n
+        We do not access or use your personal photos, videos, or other files beyond the scope of WhatsApp status folders.\n\n
+        Security\n
+        We are concerned about safeguarding the confidentiality of your information. The Application does not store any sensitive data, so there is no risk of data loss or breach from our side.\n\n
+        Changes to this Privacy Policy\n
+        This Privacy Policy may be updated from time to time for any reason. We will notify you of any changes by posting the new Privacy Policy here. You are advised to consult this Privacy Policy regularly for any changes.\n\n
+        Your Consent\n
+        By using the Application, you are consenting to our processing of your information as set forth in this Privacy Policy.\n\n
+        Contact Us\n
+        If you have any questions regarding privacy while using the Application, or have questions about our practices, please contact us via email at [Your Email Address].
+    </string>
 </resources>
