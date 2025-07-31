@@ -9,8 +9,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
-import android.provider.DocumentsContract
-import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -50,8 +48,6 @@ class SaveAll : AppCompatActivity() {
 
     companion object {
         private const val TAG = "SaveAll"
-        // Auto Save All directory path
-        private const val AUTO_SAVE_ALL_DIRECTORY = ".Auto_Save_All_Status" // This constant is still here but its value is now redundant if KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH is used directly everywhere.
     }
 
     // prefListener now listens to KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH instead of KEY_SAVE_FOLDER_URI
@@ -102,7 +98,7 @@ class SaveAll : AppCompatActivity() {
                     toggleSelection(mediaItem, position)
                 } else {
                     // Handle item click - you can add navigation to media viewer here
-                    openMediaViewer(mediaItem, position)
+                    openMediaViewer(mediaItem)
                 }
             },
             onItemLongClick = { mediaItem, view ->
@@ -275,141 +271,8 @@ class SaveAll : AppCompatActivity() {
         )
     }
 
-    private fun addMediaItemFromDocumentFile(fileDoc: DocumentFile, mediaType: String): MediaItem? {
-        // This function might still be called if deletion logic attempts SAF,
-        // but for loading, it's no longer used. Keeping it for now.
-        if (fileDoc.isFile && fileDoc.name?.startsWith(".") == false) {
-            val fileExtension = fileDoc.name?.substringAfterLast('.', "")?.lowercase()
-            val isImage = listOf("jpg", "jpeg", "png", "gif", "webp", "bmp").contains(fileExtension)
-            val isVideo = listOf("mp4", "avi", "mkv", "mov", "wmv", "flv", "3gp").contains(fileExtension)
 
-            if ((mediaType == Constants.MEDIA_TYPE_IMAGE && isImage) ||
-                (mediaType == Constants.MEDIA_TYPE_VIDEO && isVideo)) {
-                return MediaItem(
-                    file = getFileFromDocumentFile(fileDoc),
-                    uri = fileDoc.uri.toString(),
-                    type = if (isVideo) Constants.MEDIA_TYPE_VIDEO else Constants.MEDIA_TYPE_IMAGE,
-                    lastModified = fileDoc.lastModified(),
-                    isSelected = false
-                )
-            }
-        }
-        return null
-    }
-
-    private fun getFileFromDocumentFile(documentFile: DocumentFile): File? {
-        return try {
-            val uri = documentFile.uri
-            val scheme = uri.scheme
-            if (scheme == "file") {
-                return File(uri.path!!)
-            } else if (scheme == "content") {
-                val filePath = getRealPathFromURI(uri)
-                if (filePath != null) {
-                    return File(filePath)
-                }
-            }
-            null
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting File from DocumentFile: ${e.message}", e)
-            null
-        }
-    }
-
-    @SuppressLint("Range", "UseKtx")
-    private fun getRealPathFromURI(uri: Uri): String? {
-        if (DocumentsContract.isDocumentUri(this, uri)) {
-            if (isExternalStorageDocument(uri)) {
-                val docId = DocumentsContract.getDocumentId(uri)
-                val split = docId.split(":").toTypedArray()
-                val type = split[0]
-                if ("primary".equals(type, ignoreCase = true)) {
-                    return "${Environment.getExternalStorageDirectory()}/${split[1]}"
-                }
-            } else if (isDownloadsDocument(uri)) {
-                val id = DocumentsContract.getDocumentId(uri)
-                val contentUri = Uri.withAppendedPath(
-                    Uri.parse("content://downloads/public_downloads"), id
-                )
-                return getDataColumn(contentUri, null, null)
-            } else if (isMediaDocument(uri)) {
-                val docId = DocumentsContract.getDocumentId(uri)
-                val split = docId.split(":").toTypedArray()
-                val type = split[0]
-
-                var contentUri: Uri? = null
-                when (type) {
-                    "image" -> contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                    "video" -> contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                    "audio" -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                }
-                val selection = "_id=?"
-                val selectionArgs = arrayOf(split[1])
-                return getDataColumn(contentUri, selection, selectionArgs)
-            }
-        } else if ("content".equals(uri.scheme, ignoreCase = true)) {
-            return if (isGooglePhotosUri(uri)) uri.lastPathSegment else getDataColumn(uri, null, null)
-        } else if ("file".equals(uri.scheme, ignoreCase = true)) {
-            return uri.path
-        }
-        return null
-    }
-
-    private fun getDataColumn(uri: Uri?, selection: String?, selectionArgs: Array<String>?): String? {
-        val column = "_data"
-        val projection = arrayOf(column)
-        try {
-            contentResolver.query(
-                uri!!, projection, selection, selectionArgs, null
-            )?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val columnIndex = cursor.getColumnIndexOrThrow(column)
-                    return cursor.getString(columnIndex)
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting data column: ${e.message}", e)
-        }
-        return null
-    }
-
-    private fun isExternalStorageDocument(uri: Uri): Boolean {
-        return "com.android.externalstorage.documents" == uri.authority
-    }
-
-    private fun isDownloadsDocument(uri: Uri): Boolean {
-        return "com.android.providers.downloads.documents" == uri.authority
-    }
-
-    private fun isMediaDocument(uri: Uri): Boolean {
-        return "com.android.providers.media.documents" == uri.authority
-    }
-
-    private fun isGooglePhotosUri(uri: Uri): Boolean {
-        return "com.google.android.apps.photos.content" == uri.authority
-    }
-
-    // This function will now always return the KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH as the "default"
-    private fun getDefaultSavePath(): String {
-        return try {
-            File(Environment.getExternalStorageDirectory(), KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH).absolutePath
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting default save path: ${e.message}", e)
-            File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), KEY_AUTO_SAVE_ALL_SAVE_FOLDER_PATH).absolutePath // Fallback to app-specific internal storage
-        }
-    }
-
-    private fun openMediaViewer(mediaItem: MediaItem, position: Int) {
-        // Add your media viewer navigation logic here
-        // For example:
-        /*
-        val intent = Intent(this, MediaViewerActivity::class.java).apply {
-            putExtra("media_item", mediaItem)
-            putExtra("media_list", filteredMedia.toTypedArray())
-            putExtra("position", position)
-        }
-        startActivity(intent)
-        */
+    private fun openMediaViewer(mediaItem: MediaItem) {
         Toast.makeText(this, "Opening ${mediaItem.file?.name}", Toast.LENGTH_SHORT).show()
     }
 

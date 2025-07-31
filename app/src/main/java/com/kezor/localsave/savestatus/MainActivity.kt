@@ -12,7 +12,6 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
@@ -27,13 +26,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
-    private var permissionDialog: AlertDialog? = null
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val readGranted = permissions[Manifest.permission.READ_EXTERNAL_STORAGE] ?: false
-        val writeGranted = permissions[Manifest.permission.WRITE_EXTERNAL_STORAGE] ?: false
+        val readGranted = permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true
+        val writeGranted = permissions[Manifest.permission.WRITE_EXTERNAL_STORAGE] == true
 
         if (readGranted && writeGranted) {
             Log.d("MainActivity", "READ/WRITE permissions granted.")
@@ -107,6 +105,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("UseKtx")
     private fun requestStoragePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
@@ -133,10 +132,10 @@ class MainActivity : AppCompatActivity() {
         binding.navView.visibility = View.GONE
         binding.permissionOverlay.visibility = View.VISIBLE
 
-        binding.permissionOverlay.findViewById<MaterialButton>(com.kezor.localsave.savestatus.R.id.btn_grant_permission).setOnClickListener {
+        binding.permissionOverlay.findViewById<MaterialButton>(R.id.btn_grant_permission).setOnClickListener {
             requestStoragePermission()
         }
-        binding.permissionOverlay.findViewById<MaterialButton>(com.kezor.localsave.savestatus.R.id.btn_go_to_settings).setOnClickListener {
+        binding.permissionOverlay.findViewById<MaterialButton>(R.id.btn_go_to_settings).setOnClickListener {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             val uri = Uri.fromParts("package", packageName, null)
             intent.data = uri
@@ -159,18 +158,18 @@ class MainActivity : AppCompatActivity() {
 
             val navView: BottomNavigationView = binding.navView
 
-            val appBarConfiguration = AppBarConfiguration(
+            AppBarConfiguration(
                 setOf(
-                    com.kezor.localsave.savestatus.R.id.navigation_status,
-                    com.kezor.localsave.savestatus.R.id.navigation_saved,
-                    com.kezor.localsave.savestatus.R.id.navigation_settings
+                    R.id.navigation_status,
+                    R.id.navigation_saved,
+                    R.id.navigation_settings
                 )
             )
             navView.setupWithNavController(navController)
 
             navController.addOnDestinationChangedListener { _, destination, _ ->
                 when (destination.id) {
-                    com.kezor.localsave.savestatus.R.id.mediaViewerFragment -> {
+                    R.id.mediaViewerFragment -> {
                         binding.navView.visibility = View.GONE
                     }
                     else -> {
