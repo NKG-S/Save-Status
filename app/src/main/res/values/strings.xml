@@ -7,7 +7,6 @@
     <string name="permission_required_title">Storage Permission Required</string>
     <string name="permission_required_message">This app needs storage permission to save WhatsApp status files. Please grant permission to continue.</string>
     <string name="permission_grant_button">Grant Permission</string>
-    <string name="permission_denied_message">Storage permission is required for the app to function properly.</string>
     <string name="cd_permission_icon">Permission icon</string>
 
     <!-- Theme Settings -->
@@ -136,4 +135,10 @@
         Contact Us\n
         If you have any questions regarding privacy while using the Application, or have questions about our practices, please contact us via Email or Whatsapp.
     </string>
+
+        <string name="permission_denied_message">Permission to access storage was denied. Please grant permission in app settings to view statuses.</string>
+        <string name="select_directory_message">Please select the %1$s Media folder to view statuses. Tap here to select.</string>
+        <string name="access_revoked_message">Access to the %1$s folder was revoked. Please grant access again to view statuses. Tap here to select.</string>
+        <string name="select_whatsapp_folder_hint">Please navigate to the "Android/media/com.whatsapp/WhatsApp/Media/.Statuses" folder and select it.</string>
+
 </resources>

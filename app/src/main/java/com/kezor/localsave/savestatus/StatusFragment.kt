@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package com.kezor.localsave.savestatus // Standardized package name
+package com.kezor.localsave.savestatus
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -28,6 +29,7 @@ class StatusFragment : Fragment() {
     private lateinit var statusAdapter: StatusAdapter
     private var currentMediaType: String = Constants.MEDIA_TYPE_IMAGE
     private var currentTabIndex: Int = 0
+    private var selectedWhatsAppType: Int = Constants.WHATSAPP_TYPE_REGULAR // Add this line
 
     // This will hold the current list of media items displayed in the RecyclerView
     private var currentMediaList: List<MediaItem> = emptyList()
@@ -35,6 +37,7 @@ class StatusFragment : Fragment() {
     companion object {
         private const val KEY_CURRENT_TAB_INDEX = "current_tab_index"
         private const val KEY_CURRENT_MEDIA_TYPE = "current_media_type"
+        private const val KEY_SELECTED_WHATSAPP_TYPE = "selected_whatsapp_type" // Add this line
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +47,7 @@ class StatusFragment : Fragment() {
         savedInstanceState?.let {
             currentTabIndex = it.getInt(KEY_CURRENT_TAB_INDEX, 0)
             currentMediaType = it.getString(KEY_CURRENT_MEDIA_TYPE, Constants.MEDIA_TYPE_IMAGE)
+            selectedWhatsAppType = it.getInt(KEY_SELECTED_WHATSAPP_TYPE, Constants.WHATSAPP_TYPE_REGULAR) // Add this line
         }
     }
 
@@ -61,6 +65,7 @@ class StatusFragment : Fragment() {
         setupRecyclerView()
         setupTabLayout()
         setupSwipeRefresh()
+        setupSpinner() // Add this line
 
         // Restore tab selection
         restoreTabSelection()
@@ -73,6 +78,7 @@ class StatusFragment : Fragment() {
         super.onSaveInstanceState(outState)
         outState.putInt(KEY_CURRENT_TAB_INDEX, currentTabIndex)
         outState.putString(KEY_CURRENT_MEDIA_TYPE, currentMediaType)
+        outState.putInt(KEY_SELECTED_WHATSAPP_TYPE, selectedWhatsAppType) // Add this line
     }
 
     override fun onResume() {
@@ -111,17 +117,31 @@ class StatusFragment : Fragment() {
         binding.tabLayout.selectTab(binding.tabLayout.getTabAt(currentTabIndex))
     }
 
-    // In StatusFragment.kt, around line 110-120, replace the navigation call with:
+    // Add this new function
+    private fun setupSpinner() {
+        binding.whatsappTypeSpinner.setSelection(selectedWhatsAppType)
+        binding.whatsappTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (selectedWhatsAppType != position) {
+                    selectedWhatsAppType = position
+                    loadMedia(currentMediaType) // Reload media when spinner selection changes
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+        }
+    }
 
     private fun setupRecyclerView() {
         statusAdapter = StatusAdapter(
-            onItemClick = { mediaItem, position -> // This 'position' will now correctly be an Int
-                // Navigate to MediaViewerFragment - fix the action name
+            onItemClick = { mediaItem, position ->
                 val action = StatusFragmentDirections.actionNavigationStatusToMediaViewerFragment(
                     mediaItem,
                     currentMediaList.toTypedArray(),
                     position,
-                    false  // Remove the currentTabIndex parameter here too
+                    false
                 )
                 findNavController().navigate(action)
             },
@@ -171,6 +191,7 @@ class StatusFragment : Fragment() {
         }
     }
 
+    // Updated loadMedia function
     private fun loadMedia(mediaType: String) {
         binding.swipeRefreshLayout.isRefreshing = true
         binding.textViewEmptyState.visibility = View.GONE
@@ -178,13 +199,18 @@ class StatusFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             val mediaList = mutableListOf<MediaItem>()
 
-            // Paths for WhatsApp and WhatsApp Business statuses
-            val whatsappStatusDir = File(Constants.WHATSAPP_STATUS_PATH)
-            val whatsappBusinessStatusDir = File(Constants.WHATSAPP_BUSINESS_STATUS_PATH)
+            // Select directory based on spinner selection
+            val statusDir = when (selectedWhatsAppType) {
+                Constants.WHATSAPP_TYPE_BUSINESS -> File(Constants.WHATSAPP_BUSINESS_STATUS_PATH)
+                else -> File(Constants.WHATSAPP_STATUS_PATH) // Default to regular WhatsApp
+            }
 
-            Log.d("StatusFragment", "WhatsApp Status Dir: ${whatsappStatusDir.absolutePath}, Exists: ${whatsappStatusDir.exists()}")
-            Log.d("StatusFragment", "WhatsApp Business Status Dir: ${whatsappBusinessStatusDir.absolutePath}, Exists: ${whatsappBusinessStatusDir.exists()}")
+            val whatsAppTypeName = when (selectedWhatsAppType) {
+                Constants.WHATSAPP_TYPE_BUSINESS -> "WhatsApp Business"
+                else -> "WhatsApp"
+            }
 
+            Log.d("StatusFragment", "$whatsAppTypeName Status Dir: ${statusDir.absolutePath}, Exists: ${statusDir.exists()}")
 
             // Function to get files from a directory
             fun getMediaFiles(directory: File): List<MediaItem> {
@@ -208,23 +234,19 @@ class StatusFragment : Fragment() {
                 }.sortedByDescending { it.lastModified } // Sort by newest first
             }
 
-            // Load media from both WhatsApp and WhatsApp Business
-            mediaList.addAll(getMediaFiles(whatsappStatusDir))
-            mediaList.addAll(getMediaFiles(whatsappBusinessStatusDir))
+            // Load media from selected WhatsApp type only
+            mediaList.addAll(getMediaFiles(statusDir))
 
-            // Remove duplicates if any (based on absolute path)
-            val distinctMediaList = mediaList.distinctBy { it.file?.absolutePath }.toMutableList()
-
-            Log.d("StatusFragment", "Total distinct media items found: ${distinctMediaList.size}")
+            Log.d("StatusFragment", "Total media items found in $whatsAppTypeName: ${mediaList.size}")
 
             withContext(Dispatchers.Main) {
-                if (distinctMediaList.isEmpty()) {
+                if (mediaList.isEmpty()) {
                     binding.textViewEmptyState.visibility = View.VISIBLE
                 } else {
                     binding.textViewEmptyState.visibility = View.GONE
                 }
-                currentMediaList = distinctMediaList // Update the list held by the fragment
-                statusAdapter.submitList(distinctMediaList)
+                currentMediaList = mediaList // Update the list held by the fragment
+                statusAdapter.submitList(mediaList)
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         }

@@ -2,18 +2,25 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="app">
+      <SelectionState runConfigName="Save Status App">
         <option name="selectionMode" value="DIALOG" />
+        <DropdownSelection timestamp="2025-08-01T03:32:05.974132300Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=ABKYCP4624401591" />
+            </handle>
+          </Target>
+        </DropdownSelection>
         <DialogSelection>
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=ABKYCP4624401591" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=f387420c7d74" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=f387420c7d74" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=ABKYCP4624401591" />
               </handle>
             </Target>
           </targets>
