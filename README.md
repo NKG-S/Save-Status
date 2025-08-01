@@ -128,5 +128,5 @@ Distributed under the terms of the MIT License. Comprehensive details are availa
 
 ## 📬 Contact Information
 
-Nethmin-Kavindu/NKG-S - `nethminkavindu@gmail.com`
-Project Repository Link: <https://github.com/NKG-S/Save-Status>
+* **Nethmin-Kavindu/NKG-S - `nethminkavindu@gmail.com`**
+* **Project Repository Link: <https://github.com/NKG-S/Save-Status>**
