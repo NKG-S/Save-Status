@@ -17,6 +17,8 @@ object Constants {
     // WhatsApp types for spinner
     const val WHATSAPP_TYPE_REGULAR = 0
     const val WHATSAPP_TYPE_BUSINESS = 1
+    const val WHATSAPP_NORMAL_BUSINESS_BOTH = 2
+
 
     // Default WhatsApp status paths
     val WHATSAPP_STATUS_PATH = "${Environment.getExternalStorageDirectory()}/Android/media/com.whatsapp/WhatsApp/Media/.Statuses"

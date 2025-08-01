@@ -16,9 +16,4 @@
         android:title="@string/cd_delete_button"
         app:showAsAction="ifRoom"
         android:contentDescription="@string/cd_delete_button" />
-    <item
-        android:id="@+id/space2"
-        android:title=""
-        app:showAsAction="ifRoom"/>
-
 </menu>

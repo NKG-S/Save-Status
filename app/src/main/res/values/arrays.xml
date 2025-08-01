@@ -13,6 +13,11 @@
     </string-array>
     <string-array name="whatsapp_types">
         <item>WhatsApp</item>
-        <item>WhatsApp Business</item>
+        <item>Business WhatsApp</item>
+    </string-array>
+    <string-array name="whatsapp_types_saved">
+        <item>WhatsApp</item>
+        <item>Business WhatsApp</item>
+        <item>Both APPs</item>
     </string-array>
 </resources>

@@ -12,6 +12,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
@@ -30,15 +31,14 @@ class MainActivity : AppCompatActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val readGranted = permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true
-        val writeGranted = permissions[Manifest.permission.WRITE_EXTERNAL_STORAGE] == true
+        Log.d("MainActivity", "Permission results: $permissions")
 
-        if (readGranted && writeGranted) {
-            Log.d("MainActivity", "READ/WRITE permissions granted.")
+        if (checkStoragePermission()) {
+            Log.d("MainActivity", "All required permissions granted.")
             hidePermissionRequiredUI()
             setupNavigation()
         } else {
-            Log.w("MainActivity", "READ/WRITE permissions denied. Showing dialog again.")
+            Log.w("MainActivity", "Some permissions denied. Showing dialog again.")
             showPermissionRequiredUI()
         }
     }
@@ -90,40 +90,116 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkStoragePermission(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Environment.isExternalStorageManager()
-        } else {
-            val readPermission = ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-            val writePermission = ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-            readPermission && writePermission
+        return when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                // Android 13+ (API 33+) - Only check granular media permissions and MANAGE_EXTERNAL_STORAGE
+                val readMediaImages = ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.READ_MEDIA_IMAGES
+                ) == PackageManager.PERMISSION_GRANTED
+
+                val readMediaVideo = ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.READ_MEDIA_VIDEO
+                ) == PackageManager.PERMISSION_GRANTED
+
+                val manageStorage = Environment.isExternalStorageManager()
+
+                Log.d("MainActivity", "Android 13+ - ReadMediaImages: $readMediaImages, ReadMediaVideo: $readMediaVideo, ManageStorage: $manageStorage")
+                readMediaImages && readMediaVideo && manageStorage
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                // Android 11-12 (API 30-32) - Only check MANAGE_EXTERNAL_STORAGE
+                val manageStorage = Environment.isExternalStorageManager()
+                Log.d("MainActivity", "Android 11-12 - ManageStorage: $manageStorage")
+                manageStorage
+            }
+            else -> {
+                // Android 10 (API 29) - Only check legacy storage permissions
+                val readPermission = ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+                val writePermission = ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+
+                Log.d("MainActivity", "Android 10 - Read: $readPermission, Write: $writePermission")
+                readPermission && writePermission
+            }
         }
     }
 
     @SuppressLint("UseKtx")
     private fun requestStoragePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            try {
-                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                intent.addCategory("android.intent.category.DEFAULT")
-                intent.data = Uri.parse(String.format("package:%s", applicationContext.packageName))
-                manageExternalStorageLauncher.launch(intent)
-            } catch (e: Exception) {
-                val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                manageExternalStorageLauncher.launch(intent)
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                // Android 13+ (API 33+) - Request only granular media permissions first
+                Log.d("MainActivity", "Requesting Android 13+ permissions")
+
+                val mediaPermissions = mutableListOf<String>()
+
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+                    != PackageManager.PERMISSION_GRANTED) {
+                    mediaPermissions.add(Manifest.permission.READ_MEDIA_IMAGES)
+                }
+
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO)
+                    != PackageManager.PERMISSION_GRANTED) {
+                    mediaPermissions.add(Manifest.permission.READ_MEDIA_VIDEO)
+                }
+
+                if (mediaPermissions.isNotEmpty()) {
+                    Log.d("MainActivity", "Requesting media permissions: $mediaPermissions")
+                    requestPermissionLauncher.launch(mediaPermissions.toTypedArray())
+                } else if (!Environment.isExternalStorageManager()) {
+                    // Media permissions already granted, request MANAGE_EXTERNAL_STORAGE
+                    Log.d("MainActivity", "Media permissions granted, requesting MANAGE_EXTERNAL_STORAGE")
+                    requestManageExternalStorage()
+                }
             }
-        } else {
-            requestPermissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-            )
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                // Android 11-12 (API 30-32) - Request only MANAGE_EXTERNAL_STORAGE
+                Log.d("MainActivity", "Requesting Android 11-12 permissions - MANAGE_EXTERNAL_STORAGE only")
+                requestManageExternalStorage()
+            }
+            else -> {
+                // Android 10 (API 29) - Request only legacy storage permissions
+                Log.d("MainActivity", "Requesting Android 10 permissions - Legacy storage only")
+                val legacyPermissions = mutableListOf<String>()
+
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                    legacyPermissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                    legacyPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                }
+
+                if (legacyPermissions.isNotEmpty()) {
+                    Log.d("MainActivity", "Requesting legacy permissions: $legacyPermissions")
+                    requestPermissionLauncher.launch(legacyPermissions.toTypedArray())
+                }
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    @SuppressLint("UseKtx")
+    private fun requestManageExternalStorage() {
+        Log.d("MainActivity", "Launching MANAGE_EXTERNAL_STORAGE permission request")
+        try {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+            intent.addCategory("android.intent.category.DEFAULT")
+            intent.data = Uri.parse(String.format("package:%s", applicationContext.packageName))
+            manageExternalStorageLauncher.launch(intent)
+        } catch (e: Exception) {
+            Log.w("MainActivity", "Failed to launch specific manage storage intent, using general one", e)
+            val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+            manageExternalStorageLauncher.launch(intent)
         }
     }
 

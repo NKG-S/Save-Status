@@ -17,6 +17,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -45,6 +46,7 @@ class SavedFragment : Fragment() {
     private val selectedItems = mutableSetOf<MediaItem>()
     private var currentMediaList: List<MediaItem> = emptyList()
     private lateinit var sharedPreferences: SharedPreferences
+    private var currentWhatsAppFilter: Int = Constants.WHATSAPP_NORMAL_BUSINESS_BOTH // Default to show all
 
     companion object {
         private const val KEY_CURRENT_TAB_INDEX = "current_tab_index"
@@ -79,6 +81,7 @@ class SavedFragment : Fragment() {
         setupRecyclerView()
         setupTabLayout()
         setupSwipeRefresh()
+        setupSpinner()
 
         // Restore tab selection
         restoreTabSelection()
@@ -146,6 +149,31 @@ class SavedFragment : Fragment() {
         // Toolbar setup
     }
 
+    private fun setupSpinner() {
+        val spinner = binding.whatsappTypeSpinnerSaved
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                currentWhatsAppFilter = when (position) {
+                    0 -> Constants.WHATSAPP_TYPE_REGULAR        // WhatsApp
+                    1 -> Constants.WHATSAPP_TYPE_BUSINESS        // WhatsApp Business
+                    2 -> Constants.WHATSAPP_NORMAL_BUSINESS_BOTH // Both APP Media
+                    else -> Constants.WHATSAPP_NORMAL_BUSINESS_BOTH
+                }
+
+                // Reload media with the new filter
+                loadMedia(currentMediaType)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+        }
+
+        // Set default selection to "Both APP Media"
+        spinner.setSelection(2)
+    }
+
     // In SavedFragment.kt, around line 158-166, replace the navigation call with:
 
     private fun setupRecyclerView() {
@@ -186,6 +214,7 @@ class SavedFragment : Fragment() {
     }
 
     private val tabSelectedListener = object : TabLayout.OnTabSelectedListener {
+        @SuppressLint("UseKtx")
         override fun onTabSelected(tab: TabLayout.Tab?) {
             currentTabIndex = tab?.position ?: 0
             currentMediaType = when (currentTabIndex) {
@@ -216,6 +245,33 @@ class SavedFragment : Fragment() {
         }
     }
 
+    // Add this new helper function to check if a media item should be included based on the filter
+    @SuppressLint("UseKtx")
+    private fun shouldIncludeMediaItem(mediaItem: MediaItem): Boolean {
+        // If showing all media, include everything
+        if (currentWhatsAppFilter == Constants.WHATSAPP_NORMAL_BUSINESS_BOTH) {
+            return true
+        }
+
+        // Get the filename from either the file or URI
+        val fileName = mediaItem.file?.name ?: run {
+            // Extract filename from URI if file is null
+            try {
+                val uri = Uri.parse(mediaItem.uri)
+                val segments = uri.pathSegments
+                segments?.lastOrNull() ?: ""
+            } catch (_: Exception) {
+                ""
+            }
+        }
+
+        return when (currentWhatsAppFilter) {
+            Constants.WHATSAPP_TYPE_REGULAR -> fileName.startsWith("WN_")
+            Constants.WHATSAPP_TYPE_BUSINESS -> fileName.startsWith("WB_")
+            else -> true // Default to include all
+        }
+    }
+
     @SuppressLint("UseKtx")
     internal fun loadMedia(mediaType: String) {
         binding.swipeRefreshLayout.isRefreshing = true
@@ -233,8 +289,11 @@ class SavedFragment : Fragment() {
                         val folderDoc = DocumentFile.fromTreeUri(requireContext(), uri)
                         if (folderDoc != null && folderDoc.exists() && folderDoc.isDirectory) {
                             folderDoc.listFiles().forEach { fileDoc ->
-                                addMediaItemFromDocumentFile(fileDoc, mediaType)?.let {
-                                    savedMediaList.add(it)
+                                addMediaItemFromDocumentFile(fileDoc, mediaType)?.let { mediaItem ->
+                                    // Filter based on WhatsApp type
+                                    if (shouldIncludeMediaItem(mediaItem)) {
+                                        savedMediaList.add(mediaItem)
+                                    }
                                 }
                             }
                         } else {
@@ -278,15 +337,18 @@ class SavedFragment : Fragment() {
                                 (mediaType == Constants.MEDIA_TYPE_VIDEO &&
                                         listOf("mp4", "avi", "mkv").contains(file.extension.lowercase())))
             }?.forEach { file ->
-                mediaList.add(
-                    MediaItem(
-                        file = file,
-                        uri = file.absolutePath,
-                        type = if (listOf("mp4", "avi", "mkv").contains(file.extension.lowercase()))
-                            Constants.MEDIA_TYPE_VIDEO else Constants.MEDIA_TYPE_IMAGE,
-                        lastModified = file.lastModified()
-                    )
+                val mediaItem = MediaItem(
+                    file = file,
+                    uri = file.absolutePath,
+                    type = if (listOf("mp4", "avi", "mkv").contains(file.extension.lowercase()))
+                        Constants.MEDIA_TYPE_VIDEO else Constants.MEDIA_TYPE_IMAGE,
+                    lastModified = file.lastModified()
                 )
+
+                // Filter based on WhatsApp type
+                if (shouldIncludeMediaItem(mediaItem)) {
+                    mediaList.add(mediaItem)
+                }
             }
         }
     }
@@ -400,28 +462,6 @@ class SavedFragment : Fragment() {
 
     private fun isGooglePhotosUri(uri: Uri): Boolean {
         return "com.google.android.apps.photos.content" == uri.authority
-    }
-
-    @SuppressLint("UseKtx")
-    private fun getSavedFolderPath(): String {
-        val customUri = sharedPreferences.getString(Constants.KEY_SAVE_FOLDER_URI, null)
-        return if (!customUri.isNullOrEmpty()) {
-            try {
-                val uri = Uri.parse(customUri)
-                val docFile = DocumentFile.fromTreeUri(requireContext(), uri)
-                if (docFile?.isDirectory == true) {
-                    getRealPathFromSAFUri(uri) ?: getDefaultSavePath()
-                } else {
-                    Log.w("SavedFragment", "Invalid custom SAF URI. Falling back to default path.")
-                    getDefaultSavePath()
-                }
-            } catch (e: Exception) {
-                Log.e("SavedFragment", "Error parsing custom URI: ${e.message}", e)
-                getDefaultSavePath()
-            }
-        } else {
-            getDefaultSavePath()
-        }
     }
 
     private fun getDefaultSavePath(): String {

@@ -74,9 +74,11 @@ class MediaViewerFragment : Fragment() {
     private var playbackPosition = 0L
     private lateinit var mediaList: Array<MediaItem>
     private var currentIndex: Int = 0
-    private var currentTabIndex: Int = 0  // Move this line up to here
+    private var currentTabIndex: Int = 0
     private var isFromSavedSection: Boolean = false
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var appType: String
+    private var whatsAppType: Int = Constants.WHATSAPP_TYPE_REGULAR
 
     // Optimized handlers and runnables
     private val controlsHandler = Handler(Looper.getMainLooper())
@@ -118,7 +120,10 @@ class MediaViewerFragment : Fragment() {
         try {
             mediaList = args.mediaList
             currentIndex = args.currentIndex
-            isFromSavedSection = args.isSavedMedia // Use the correct parameter name
+            isFromSavedSection = args.isSavedMedia
+            // Fix: Get appType directly from the arguments bundle to avoid the build error
+            appType = arguments?.getString("appType", "SS") ?: "SS"
+            whatsAppType = arguments?.getInt("whatsAppType", Constants.WHATSAPP_TYPE_REGULAR) ?: Constants.WHATSAPP_TYPE_REGULAR
             sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
 
             // Get current tab index from SharedPreferences
@@ -728,7 +733,7 @@ class MediaViewerFragment : Fragment() {
             saveOperationJob = lifecycleScope.launch(backgroundDispatcher) {
                 try {
                     val customUri = sharedPreferences.getString(Constants.KEY_SAVE_FOLDER_URI, null)
-                    val newFileName = generateFileName(mediaItem)
+                    val newFileName = generateFileName(mediaItem, whatsAppType)
 
                     if (!customUri.isNullOrEmpty()) {
                         saveMediaUsingSAF(mediaItem, Uri.parse(customUri), newFileName)
@@ -744,11 +749,19 @@ class MediaViewerFragment : Fragment() {
         }
     }
 
-    private fun generateFileName(mediaItem: MediaItem): String {
+    private fun generateFileName(mediaItem: MediaItem, whatsAppType: Int = Constants.WHATSAPP_TYPE_REGULAR): String {
         val fileId = UUID.randomUUID().toString().substring(0, 8)
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+
+        // Determine WhatsApp type prefix
+        val whatsAppPrefix = when (whatsAppType) {
+            Constants.WHATSAPP_TYPE_BUSINESS -> "WB"
+            Constants.WHATSAPP_TYPE_REGULAR -> "WN"
+            else -> "WN" // Default to regular WhatsApp
+        }
+
         val extension = mediaItem.file?.extension
-        return "${fileId}_${mediaItem.file?.nameWithoutExtension}_$timestamp.$extension"
+        return "${whatsAppPrefix}_${fileId}_${mediaItem.file?.nameWithoutExtension}_$timestamp.$extension"
     }
 
     private suspend fun saveMediaUsingMediaStore(mediaItem: MediaItem, fileName: String): Boolean {

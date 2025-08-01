@@ -49,6 +49,14 @@
                     android:text="@string/title_saved"
                     android:textAppearance="?attr/textAppearanceHeadline5"
                     android:textColor="?attr/colorOnSurface" />
+
+                <Spinner
+                    android:id="@+id/whatsapp_type_spinner_saved"
+                    android:layout_width="155dp"
+                    android:layout_height="34dp"
+                    android:layout_marginStart="12dp"
+                    android:backgroundTint="?attr/colorOnSurface"
+                    android:entries="@array/whatsapp_types_saved" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

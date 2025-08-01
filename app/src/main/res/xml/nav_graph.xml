@@ -58,6 +58,10 @@
             android:name="currentTabIndex"
             app:argType="integer"
             android:defaultValue="0" />
+        <argument
+            android:name="appType"
+            app:argType="string"
+            android:defaultValue="SS" />
     </fragment>
 
 </navigation>
