@@ -390,41 +390,47 @@ class SettingsFragment : Fragment() {
         setAppVersion()
     }
 
+//    @SuppressLint("UseKtx", "QueryPermissionsNeeded")
+//    private fun openPlayStore() {
+//        try {
+//            val packageName = requireContext().packageName
+//            val playStoreIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName"))
+//
+//            if (playStoreIntent.resolveActivity(requireContext().packageManager) != null) {
+//                startActivity(playStoreIntent)
+//            } else {
+//                val webIntent = Intent(Intent.ACTION_VIEW,
+//                    Uri.parse("https://play.google.com/store/apps/details?id=$packageName"))
+//                startActivity(webIntent)
+//            }
+//        } catch (e: Exception) {
+//            Log.e(TAG, "Error opening Play Store", e)
+//            showSnackbar("Unable to open Play Store")
+//        }
+//    }
+
+
     @SuppressLint("UseKtx", "QueryPermissionsNeeded")
     private fun openPlayStore() {
         try {
-            val packageName = requireContext().packageName
-            val playStoreIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName"))
+            val githubLink = getString(R.string.github_link)
+            val githubUri = Uri.parse(githubLink)
 
-            if (playStoreIntent.resolveActivity(requireContext().packageManager) != null) {
-                startActivity(playStoreIntent)
+            val githubAppIntent = Intent(Intent.ACTION_VIEW, githubUri).apply {
+                setPackage("com.github.android")
+            }
+
+            if (githubAppIntent.resolveActivity(requireContext().packageManager) != null) {
+                startActivity(githubAppIntent)
             } else {
-                val webIntent = Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=$packageName"))
+                val webIntent = Intent(Intent.ACTION_VIEW, githubUri)
                 startActivity(webIntent)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error opening Play Store", e)
-            showSnackbar("Unable to open Play Store")
+            Log.e(TAG, "Error opening GitHub link", e)
+            showSnackbar("Unable to open GitHub")
         }
     }
-
-//    @SuppressLint("UseKtx", "QueryPermissionsNeeded")
-//    private fun openPrivacyPolicy() {
-//        try {
-//            // IMPORTANT: Replace this with your actual privacy policy URL
-//            val privacyPolicyUrl = getString(R.string.Privacy_policy_url)
-//            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(privacyPolicyUrl))
-//
-//            // The previous conditional check can sometimes fail. A more robust way is to try and
-//            // start the activity, and catch the exception if no app is found.
-//            startActivity(intent)
-//
-//        } catch (e: Exception) {
-//            Log.e(TAG, "Error opening privacy policy", e)
-//            showSnackbar("No browser app found")
-//        }
-//    }
 
     private fun openPrivacyPolicy() {
         try {
@@ -444,8 +450,7 @@ class SettingsFragment : Fragment() {
         try {
             val packageName = requireContext().packageName
             val appName = getString(R.string.app_name)
-            val shareText = "Check out $appName - a great app for saving WhatsApp statuses!\n" +
-                    "Download it from: https://play.google.com/store/apps/details?id=$packageName"
+            val shareText = getString(R.string.Share_Message, appName) + getString(R.string.Share_Link) + getString(R.string.github_link)
 
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
